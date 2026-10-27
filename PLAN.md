@@ -630,8 +630,9 @@ docs/screens/  the 16 reference screenshots
 After each step: `flutter analyze` (zero issues), `flutter test`, run on the emulator (and
 the phone by APK when wanted), fix problems, then report before the next step.
 
-**No Git commits and no GitHub** (owner's decision, Oct 15, 2026). The project is not
-version-controlled; back it up by copying the folder if needed.
+**Version control:** at first no Git (owner's decision, Oct 15, 2026). On Oct 27, 2026 the
+owner asked for it to go on GitHub: https://github.com/RjhnJms/PlantQuestV2 (branch `main`).
+Commit and push only when the owner asks. Built APKs in `release/` are not committed.
 
 1. Theme, colors, font; button, card, progress bar and stat pill components
 2. Artwork: Binhi, avatars, world scenes, then the 15 plants
@@ -651,7 +652,7 @@ version-controlled; back it up by copying the folder if needed.
   and `key.properties` is never shared along with the project.
 - `flutter build apk --release`, then install on the phone by copying the APK over USB
   file transfer.
-- Write a README covering setup and building. **No GitHub push.**
+- Write a README covering setup and building.
 - **Done Oct 23, 2026 (D17):** owner chose to skip the release key for now (no Play Store
   yet), so 2.0.0 is signed with this PC's test key. `flutter build apk --release
   --split-per-abi`; the TECNO gets `release/PlantQuest-2.0.0-arm64.apk` (26 MB). The release

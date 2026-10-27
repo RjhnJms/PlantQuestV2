@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plant Hunt Preview</title>
+<style>
+  :root { --bg:#FFF9EC; --card:#fff; --border:#F0E6D0; --borderDeep:#E3D6BA; --text:#263046; --muted:#6E7191;
+          --leaf:#4CC35A; --leafDark:#2E9142; --leafTint:#E6F8DD; --sky:#6EC6FF; --skyTint:#E5F5FF;
+          --sun:#FFC93C; --sunDark:#F2A100; --sunTint:#FFF1C7; --grape:#8E6CFF; --grapeTint:#EFEAFF; --page:#F4EEDF; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--text); font:15px/1.4 "Nunito", system-ui, sans-serif; }
+  .wrap { max-width:980px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { margin:0 0 4px; font-size:26px; }
+  .lead { color:var(--muted); margin:0 0 14px; max-width:640px; }
+  .pick { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .pick button { font:inherit; font-weight:800; border:2px solid var(--borderDeep); background:var(--card); color:var(--text);
+                 border-radius:14px; padding:8px 14px; cursor:pointer; }
+  .pick button.on { background:var(--leaf); border-color:var(--leafDark); color:#fff; }
+  .row { display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start; }
+  .phone { width:340px; max-width:100%; height:700px; background:var(--bg); border:10px solid #263046; border-radius:38px;
+           overflow:hidden; position:relative; display:flex; flex-direction:column; }
+  .notes { flex:1; min-width:260px; max-width:520px; }
+  .notes h2 { font-size:18px; margin:4px 0 6px; }
+  .notes ul { margin:0 0 12px; padding-left:20px; }
+  .notes li { margin-bottom:4px; }
+  .top { padding:14px 16px 8px; background:linear-gradient(#BFE9FF, var(--bg)); }
+  .title { display:flex; align-items:center; gap:10px; }
+  .back { width:38px; height:38px; border-radius:12px; background:var(--card); border:2px solid var(--border); display:grid; place-items:center; font-weight:900; }
+  .title h3 { margin:0; font-size:22px; }
+  .tabs { display:flex; gap:6px; margin-top:10px; }
+  .tabs span { flex:1; text-align:center; font-weight:800; font-size:13px; padding:6px 0; border-radius:12px; background:var(--card); border:2px solid var(--border); color:var(--muted); cursor:pointer; }
+  .tabs span.on { background:var(--leafTint); border-color:var(--leaf); color:var(--leafDark); }
+  .bar { display:flex; align-items:center; gap:8px; margin-top:10px; }
+  .vine { flex:1; height:16px; border-radius:99px; background:#EDE3CB; overflow:hidden; border:2px solid var(--borderDeep); }
+  .vine i { display:block; height:100%; background:var(--leaf); border-radius:99px; transition:width .5s cubic-bezier(.3,1.4,.5,1); }
+  .count { font-weight:900; font-size:14px; }
+  .safe { margin:6px 16px 4px; background:var(--sunTint); border:2px solid #F5DC8C; border-radius:14px; padding:6px 10px; font-size:12.5px; display:flex; gap:8px; align-items:center; }
+  .list { flex:1; overflow-y:auto; padding:8px 16px 16px; }
+  .task { display:flex; gap:10px; align-items:center; background:var(--card); border:2px solid var(--border); border-bottom-width:5px;
+          border-radius:18px; padding:10px; margin-bottom:10px; position:relative; transition:transform .15s; }
+  .task:active { transform:scale(.98); }
+  .pic { width:58px; height:58px; flex:none; border-radius:14px; background:var(--skyTint); display:grid; place-items:center; }
+  .task .txt { flex:1; }
+  .task b { display:block; font-size:15px; }
+  .task small { color:var(--muted); font-size:12px; }
+  .go { font:inherit; font-weight:900; font-size:13px; border:0; border-radius:12px; padding:8px 10px; background:var(--leaf); color:#fff;
+        box-shadow:0 3px 0 var(--leafDark); cursor:pointer; white-space:nowrap; }
+  .task.found { background:#F6FCF2; border-color:#BFE6AE; }
+  .task.found .go { display:none; }
+  .stamp { display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%) rotate(-12deg); border:3px solid var(--leafDark);
+           color:var(--leafDark); font-weight:900; font-size:13px; padding:2px 8px; border-radius:10px; letter-spacing:1px; background:#fff; }
+  .task.found .stamp { display:block; animation:stamp .35s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes stamp { from { transform:translateY(-50%) rotate(-12deg) scale(2.2); opacity:0; } to { transform:translateY(-50%) rotate(-12deg) scale(1); opacity:1; } }
+  .sheet { position:absolute; left:0; right:0; bottom:0; background:var(--card); border-radius:26px 26px 0 0; padding:16px 16px 20px;
+           box-shadow:0 -6px 20px #2630462e; transform:translateY(105%); transition:transform .35s cubic-bezier(.3,1.3,.5,1); }
+  .sheet.open { transform:none; }
+  .shade { position:absolute; inset:0; background:#26304655; opacity:0; pointer-events:none; transition:opacity .25s; }
+  .shade.open { opacity:1; pointer-events:auto; }
+  .sheet h4 { margin:0 0 4px; font-size:18px; text-align:center; }
+  .sheet p { margin:0 0 12px; text-align:center; color:var(--muted); font-size:13.5px; }
+  .choices { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+  .choices div { border:3px solid var(--border); border-radius:16px; padding:6px; display:grid; place-items:center; cursor:pointer; background:var(--skyTint); }
+  .choices div.right { border-color:var(--leaf); background:var(--leafTint); }
+  .choices div.wrong { animation:shake .35s; border-color:#F2A38F; }
+  @keyframes shake { 25% { transform:translateX(-5px);} 75% { transform:translateX(5px);} }
+  .big { display:block; width:100%; font:inherit; font-weight:900; font-size:17px; border:0; border-radius:16px; padding:12px;
+         background:var(--leaf); color:#fff; box-shadow:0 4px 0 var(--leafDark); cursor:pointer; margin-top:6px; }
+  .big.alt { background:var(--grapeTint); color:#4a3aa8; box-shadow:0 4px 0 #cfc3f5; }
+  .math { text-align:center; font-size:26px; font-weight:900; margin:4px 0 10px; }
+  .nums { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .nums button { font:inherit; font-weight:900; font-size:18px; border:2px solid var(--borderDeep); border-radius:14px; padding:10px 0; background:var(--card); cursor:pointer; color:var(--text); }
+  .binhi { display:flex; gap:8px; align-items:flex-end; margin:4px 0 10px; }
+  .bubble { background:var(--leafTint); border-radius:14px 14px 14px 4px; padding:8px 10px; font-size:13.5px; font-weight:700; }
+  .reward { position:absolute; inset:0; background:#26304688; display:none; place-items:center; }
+  .reward.open { display:grid; }
+  .rcard { background:var(--card); border-radius:26px; padding:20px; width:280px; text-align:center; animation:pop .45s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes pop { from { transform:scale(.4); opacity:0; } to { transform:scale(1); opacity:1; } }
+  .rcard h4 { margin:8px 0 2px; font-size:22px; }
+  .rcard p { margin:0 0 10px; color:var(--muted); }
+  .sticker { width:130px; height:130px; margin:0 auto; border-radius:50%; background:#fff; border:6px solid #fff; box-shadow:0 0 0 3px var(--borderDeep), 0 6px 0 var(--borderDeep);
+             display:grid; place-items:center; animation:spin .8s cubic-bezier(.3,1.5,.5,1); }
+  @keyframes spin { from { transform:rotate(-40deg) scale(.5); } }
+  .leaves { display:inline-block; background:var(--leafTint); color:var(--leafDark); font-weight:900; border-radius:99px; padding:3px 12px; margin-bottom:12px; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page:#1d2230; } .notes, h1 { color:#f2f2f5; } .lead { color:#b5b8cc; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Plant Hunt: preview</h1>
+  <p class="lead">Tap the buttons on the phone, it works. The top switch changes <b>how a child marks a plant as found</b>. That's the main thing to choose; the rest stays the same.</p>
+  <div class="pick" id="modes">
+    <button data-m="a" class="on">A. Just tap "I found it"</button>
+    <button data-m="b">B. Pick what it looked like</button>
+    <button data-m="c">C. A grown-up says yes</button>
+  </div>
+  <div class="row">
+    <div class="phone" id="phone">
+      <div class="top">
+        <div class="title"><div class="back">‹</div><h3>Plant Hunt</h3></div>
+        <div class="tabs" id="tabs"><span data-s="home" class="on">At home</span><span data-s="out">Outside</span><span data-s="school">At school</span></div>
+        <div class="bar"><div class="vine"><i id="fill" style="width:0"></i></div><span class="count" id="count">0 / 6</span></div>
+      </div>
+      <div class="safe"><svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#FFC93C"/><rect x="10.6" y="5" width="2.8" height="9" rx="1.4" fill="#263046"/><circle cx="12" cy="17.8" r="1.6" fill="#263046"/></svg>
+        <span>Hunt with a grown-up. Look, don't pick, and never eat a plant.</span></div>
+      <div class="list" id="list"></div>
+      <div class="shade" id="shade"></div>
+      <div class="sheet" id="sheet"></div>
+      <div class="reward" id="reward"><div class="rcard">
+        <div class="sticker" id="stickerArt"></div>
+        <h4>Backyard Hunter!</h4>
+        <p>You found every plant at home. New sticker for your book.</p>
+        <div class="leaves">+5 leaves</div>
+        <button class="big" onclick="closeReward()">YAY!</button>
+      </div></div>
+    </div>
+    <div class="notes">
+      <h2>How it works</h2>
+      <ul>
+        <li>Opens from the <b>Quiz tab</b> (or a card on Home). Three hunts: <b>At home</b>, <b>Outside</b>, <b>At school</b>, 6 things each.</li>
+        <li>Each thing has a small drawing and a hint from Binhi when you tap it.</li>
+        <li>Each find: <b>+1 leaf</b>, a FOUND stamp, the vine grows. Finish a hunt: a <b>sticker</b> + 5 leaves.</li>
+        <li>Works fully offline: no camera, no photos saved, no location.</li>
+        <li>A safety note stays on top: go with a grown-up, look don't pick, don't eat plants.</li>
+      </ul>
+      <h2 id="mtitle">A. Just tap "I found it"</h2>
+      <ul id="mnotes"></ul>
+      <h2>Ideas for later</h2>
+      <ul>
+        <li>New hunt each week so there's always one to do.</li>
+        <li>Finding a plant that's in the app (like Gumamela) also plants it in My Garden.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<script>
+const art = {
+  heart:'<svg width="46" height="46" viewBox="0 0 48 48"><path d="M24 42 C10 32 6 22 10 14 C14 7 22 9 24 16 C26 9 34 7 38 14 C42 22 38 32 24 42Z" fill="#4CC35A" stroke="#2E9142" stroke-width="2.5"/><path d="M24 40 V17" stroke="#2E9142" stroke-width="2"/></svg>',
+  water:'<svg width="46" height="46" viewBox="0 0 48 48"><path d="M4 34 Q12 30 20 34 T36 34 T48 34 V48 H4Z" fill="#6EC6FF"/><path d="M24 33 V18" stroke="#2E9142" stroke-width="3"/><ellipse cx="17" cy="17" rx="8" ry="4" fill="#4CC35A" transform="rotate(-25 17 17)"/><ellipse cx="31" cy="14" rx="8" ry="4" fill="#4CC35A" transform="rotate(25 31 14)"/></svg>',
+  flower:'<svg width="46" height="46" viewBox="0 0 48 48"><g fill="#FF8FB1" stroke="#E5578A" stroke-width="2"><circle cx="24" cy="12" r="7"/><circle cx="35" cy="20" r="7"/><circle cx="31" cy="33" r="7"/><circle cx="17" cy="33" r="7"/><circle cx="13" cy="20" r="7"/></g><circle cx="24" cy="23" r="5" fill="#FFC93C"/></svg>',
+  fern:'<svg width="46" height="46" viewBox="0 0 48 48"><path d="M24 44 C24 30 30 20 30 14 C30 8 22 8 22 14 C22 18 27 18 27 15" fill="none" stroke="#2E9142" stroke-width="3.5" stroke-linecap="round"/><g fill="#4CC35A"><ellipse cx="18" cy="32" rx="6" ry="3" transform="rotate(20 18 32)"/><ellipse cx="31" cy="30" rx="6" ry="3" transform="rotate(-20 31 30)"/><ellipse cx="20" cy="24" rx="5" ry="2.6" transform="rotate(20 20 24)"/></g></svg>',
+  seed:'<svg width="46" height="46" viewBox="0 0 48 48"><ellipse cx="24" cy="30" rx="11" ry="8" fill="#C98A4B" stroke="#8A5A2B" stroke-width="2.5"/><path d="M24 23 C24 14 18 10 13 12 C16 17 20 20 24 23 C25 15 31 11 36 13 C33 18 28 21 24 23" fill="#4CC35A" stroke="#2E9142" stroke-width="2"/></svg>',
+  bee:'<svg width="46" height="46" viewBox="0 0 48 48"><path d="M10 44 Q14 30 22 26" stroke="#2E9142" stroke-width="3" fill="none"/><circle cx="22" cy="24" r="6" fill="#FFC93C" stroke="#F2A100" stroke-width="2"/><ellipse cx="34" cy="14" rx="7" ry="5" fill="#FFC93C" stroke="#263046" stroke-width="2"/><path d="M32 9.5 V18.5 M36 9.5 V18.5" stroke="#263046" stroke-width="2.5"/><ellipse cx="33" cy="7" rx="4" ry="3" fill="#E5F5FF" stroke="#6EC6FF" stroke-width="1.5"/></svg>',
+  bark:'<svg width="46" height="46" viewBox="0 0 48 48"><rect x="14" y="6" width="20" height="40" rx="4" fill="#A9743F" stroke="#7A4E25" stroke-width="2.5"/><path d="M19 10 V22 M27 14 V30 M22 28 V42 M30 34 V42" stroke="#7A4E25" stroke-width="2.5" stroke-linecap="round"/></svg>',
+  grass:'<svg width="46" height="46" viewBox="0 0 48 48"><g stroke="#2E9142" stroke-width="3" fill="none" stroke-linecap="round"><path d="M12 44 Q12 24 6 10"/><path d="M20 44 Q22 22 18 4"/><path d="M28 44 Q28 26 34 8"/><path d="M36 44 Q36 30 44 18"/></g></svg>',
+  pot:'<svg width="46" height="46" viewBox="0 0 48 48"><path d="M12 26 H36 L33 44 H15Z" fill="#E07A4E" stroke="#B5522B" stroke-width="2.5"/><path d="M24 26 V12" stroke="#2E9142" stroke-width="3"/><ellipse cx="18" cy="14" rx="6" ry="3.5" fill="#4CC35A"/><ellipse cx="30" cy="11" rx="6" ry="3.5" fill="#4CC35A"/></svg>',
+  round:'<svg width="46" height="46" viewBox="0 0 48 48"><circle cx="24" cy="22" r="16" fill="#4CC35A" stroke="#2E9142" stroke-width="2.5"/><path d="M24 38 V44 M24 22 L14 14 M24 22 L34 14 M24 22 V8" stroke="#2E9142" stroke-width="2"/></svg>',
+  long:'<svg width="46" height="46" viewBox="0 0 48 48"><path d="M24 4 C34 14 34 34 24 44 C14 34 14 14 24 4Z" fill="#4CC35A" stroke="#2E9142" stroke-width="2.5"/><path d="M24 8 V42" stroke="#2E9142" stroke-width="2"/></svg>',
+};
+// each: text, hint, picture, and the B-mode choices (first is right).
+const hunts = {
+  home: [
+    ['A leaf shaped like a heart', 'Look at vines climbing a fence or a pot by the window.', 'heart', ['heart','long','round']],
+    ['A plant in a pot', 'Check the windows, the door and the kitchen.', 'pot', ['pot','water','bark']],
+    ['A flower with 5 petals', 'Count the petals: 1, 2, 3, 4, 5!', 'flower', ['flower','seed','grass']],
+    ['A seed you can eat', 'Ask a grown-up to show you rice or mongo in the kitchen.', 'seed', ['seed','flower','heart']],
+    ['A leaf that is long and thin', 'Like a spear! Lemongrass or pandan in the kitchen garden.', 'long', ['long','round','heart']],
+    ['A curly new leaf', 'Ferns open up like a snail shell.', 'fern', ['fern','pot','bark']],
+  ],
+  out: [
+    ['A plant growing in water', 'Look in a canal, a pond or a basin.', 'water', ['water','bark','flower']],
+    ['A tree with rough bark', 'Gently touch the trunk. Is it bumpy?', 'bark', ['bark','long','pot']],
+    ['A bee or butterfly on a flower', 'Stay still and watch. Don\'t touch it!', 'bee', ['bee','grass','seed']],
+    ['Grass taller than your knee', 'Check by the road or an empty lot.', 'grass', ['grass','fern','round']],
+    ['A round leaf', 'Like a coin or a plate.', 'round', ['round','long','heart']],
+    ['A flower with 5 petals', 'Gumamela and santan are good places to look.', 'flower', ['flower','seed','water']],
+  ],
+  school: [
+    ['A plant in a pot', 'Classrooms and the principal\'s office often have one.', 'pot', ['pot','bark','water']],
+    ['A tree with rough bark', 'The school yard usually has a big tree.', 'bark', ['bark','pot','heart']],
+    ['A leaf shaped like a heart', 'Look along the school fence.', 'heart', ['heart','round','long']],
+    ['A curly new leaf', 'Check the school garden.', 'fern', ['fern','seed','bark']],
+    ['Grass taller than your knee', 'By the field or the back gate.', 'grass', ['grass','water','flower']],
+    ['A seed on the ground', 'Under trees you can find seeds and pods.', 'seed', ['seed','long','pot']],
+  ],
+};
+const modeText = {
+  a: ['A. Just tap "I found it"', [
+    'Fastest and simplest; good for Grade 1–2.',
+    'Kids could tap everything without looking, but the reward is small (1 leaf), so there\'s little reason to cheat.',
+  ]],
+  b: ['B. Pick what it looked like', [
+    'After "I found it", Binhi asks which drawing matches what they saw (3 choices).',
+    'Makes kids look closely, and it teaches leaf shapes. Wrong pick: a wiggle and try again.',
+    'My pick: fun, still quick, and there\'s a little learning in each find.',
+  ]],
+  c: ['C. A grown-up says yes', [
+    'A grown-up answers an easy maths question (like 6 + 7) to confirm the find.',
+    'Most honest, and gets parents involved, but kids need a grown-up next to them every time.',
+    'Older kids can answer the maths themselves, so it\'s not a strong lock.',
+  ]],
+};
+let mode = 'a', set = 'home';
+const found = { home: new Set(), out: new Set(), school: new Set() };
+const $ = id => document.getElementById(id);
+
+function render() {
+  const list = $('list'); list.innerHTML = '';
+  hunts[set].forEach((t, i) => {
+    const d = document.createElement('div');
+    d.className = 'task' + (found[set].has(i) ? ' found' : '');
+    d.innerHTML = `<div class="pic">${art[t[2]]}</div><div class="txt"><b>${t[0]}</b><small>${t[1]}</small></div>
+      <button class="go">I FOUND IT!</button><div class="stamp">FOUND</div>`;
+    d.querySelector('.go').onclick = () => tryFind(i);
+    list.appendChild(d);
+  });
+  const n = found[set].size, total = hunts[set].length;
+  $('fill').style.width = (n / total * 100) + '%';
+  $('count').textContent = `${n} / ${total}`;
+  const [title, notes] = modeText[mode];
+  $('mtitle').textContent = title;
+  $('mnotes').innerHTML = notes.map(x => `<li>${x}</li>`).join('');
+}
+function openSheet(html) { $('sheet').innerHTML = html; $('sheet').classList.add('open'); $('shade').classList.add('open'); }
+function closeSheet() { $('sheet').classList.remove('open'); $('shade').classList.remove('open'); }
+$('shade').onclick = closeSheet;
+
+function tryFind(i) {
+  const t = hunts[set][i];
+  if (mode === 'a') return markFound(i);
+  if (mode === 'b') {
+    const order = t[3].map((k, j) => [k, j === 0]).sort(() => Math.random() - .5);
+    openSheet(`<div class="binhi">${binhi()}<div class="bubble">Great! Which one did it look like?</div></div>
+      <div class="choices">${order.map(([k, ok]) => `<div data-ok="${ok}">${art[k]}</div>`).join('')}</div>
+      <button class="big alt" onclick="closeSheet()">NOT YET</button>`);
+    $('sheet').querySelectorAll('.choices div').forEach(c => c.onclick = () => {
+      if (c.dataset.ok === 'true') { c.classList.add('right'); setTimeout(() => { closeSheet(); markFound(i); }, 450); }
+      else { c.classList.remove('wrong'); void c.offsetWidth; c.classList.add('wrong'); }
+    });
+  }
+  if (mode === 'c') {
+    const a = 3 + Math.floor(Math.random() * 6), b = 4 + Math.floor(Math.random() * 5), ans = a + b;
+    const opts = [ans, ans + 1, ans - 2, ans + 3].sort(() => Math.random() - .5);
+    openSheet(`<h4>Grown-up check</h4><p>Hand the phone to a grown-up. Did your child find:<br><b>${t[0]}</b>?</p>
+      <div class="math">${a} + ${b} = ?</div>
+      <div class="nums">${opts.map(o => `<button data-ok="${o === ans}">${o}</button>`).join('')}</div>
+      <button class="big alt" onclick="closeSheet()">NOT YET</button>`);
+    $('sheet').querySelectorAll('.nums button').forEach(c => c.onclick = () => {
+      if (c.dataset.ok === 'true') { closeSheet(); markFound(i); }
+      else { c.style.borderColor = '#F2A38F'; }
+    });
+  }
+}
+function markFound(i) {
+  found[set].add(i); render();
+  if (found[set].size === hunts[set].length) setTimeout(() => $('reward').classList.add('open'), 600);
+}
+function closeReward() { $('reward').classList.remove('open'); }
+function binhi() {
+  return '<svg width="44" height="50" viewBox="0 0 44 50"><path d="M22 14 C22 6 16 2 10 4 C13 10 17 13 22 14 C23 7 29 3 35 5 C32 11 27 13 22 14" fill="#4CC35A" stroke="#2E9142" stroke-width="2"/><ellipse cx="22" cy="32" rx="16" ry="15" fill="#C98A4B" stroke="#8A5A2B" stroke-width="2.5"/><circle cx="16" cy="30" r="2.6" fill="#263046"/><circle cx="28" cy="30" r="2.6" fill="#263046"/><path d="M17 37 Q22 41 27 37" stroke="#263046" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>';
+}
+$('stickerArt').innerHTML = '<svg width="110" height="110" viewBox="0 0 110 110"><circle cx="55" cy="55" r="52" fill="#E6F8DD"/><circle cx="48" cy="50" r="22" fill="none" stroke="#263046" stroke-width="8"/><circle cx="48" cy="50" r="18" fill="#E5F5FF"/><path d="M64 66 L84 86" stroke="#263046" stroke-width="10" stroke-linecap="round"/><path d="M48 62 C40 54 38 46 42 42 C45 39 48 41 48 45 C48 41 51 39 54 42 C58 46 56 54 48 62Z" fill="#4CC35A" stroke="#2E9142" stroke-width="2"/></svg>';
+
+document.querySelectorAll('#modes button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('#modes button').forEach(x => x.classList.toggle('on', x === b));
+  mode = b.dataset.m; closeSheet(); render();
+});
+document.querySelectorAll('#tabs span').forEach(s => s.onclick = () => {
+  document.querySelectorAll('#tabs span').forEach(x => x.classList.toggle('on', x === s));
+  set = s.dataset.s; render();
+});
+render();
+</script>
+</body>
+</html>

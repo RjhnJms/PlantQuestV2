@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Credits Designs</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root { --page:#F4EEDF; --text:#263046; --muted:#6E7191; --leaf:#4CC35A; --grass:#4CC35A; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--text); font:15px/1.4 "Nunito", system-ui, sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { margin:0 0 4px; font-size:26px; }
+  .lead { color:var(--muted); margin:0 0 18px; max-width:760px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(350px, 1fr)); gap:26px 18px; }
+  .opt h2 { margin:10px 4px 2px; font-size:19px; }
+  .opt h2 b { display:inline-grid; place-items:center; width:28px; height:28px; border-radius:9px; background:var(--leaf); color:#fff; margin-right:6px; font-size:16px; }
+  .opt p { margin:0 4px; color:var(--muted); font-size:14px; }
+  .phone { width:340px; height:736px; margin:0 auto; border:10px solid #263046; border-radius:38px; overflow:hidden; position:relative; }
+  .screen { width:390px; height:844px; transform:scale(.8205); transform-origin:0 0; position:relative; background:url(base.png) 0 0/390px 844px; font-family:Fredoka, system-ui, sans-serif; }
+  /* Covers the old credits so each design can draw its own. */
+  .cover { position:absolute; left:0; right:0; top:582px; bottom:0; background:var(--grass); }
+  .vine { width:390px; height:104px; flex:none; background:url(base.png) 0 -622px/390px 844px; margin-bottom:6px; }
+  .credits { position:absolute; left:0; right:0; bottom:0; top:560px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding-bottom:16px; color:#fff; text-align:center; }
+  .ver { font-size:13px; font-weight:600; color:#ffffffb3; margin-top:6px; }
+  @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  .rise { animation:rise .7s ease-out both; }
+  @keyframes sway { from { transform:rotate(-2deg); } to { transform:rotate(2deg); } }
+  .sway { animation:sway 2.6s ease-in-out infinite alternate; transform-origin:50% 0; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page:#1d2230; } h1, .opt h2 { color:#f2f2f5; } .lead, .opt p { color:#b5b8cc; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Loading screen credits: pick a style</h1>
+  <p class="lead">Only the bottom part changes: how the developers' names are shown. Everything above (logo, sun, Binhi, vine) stays as it is. The version number stays too.</p>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+const names = ['Elyssa Jean Vicencio', 'Ma. Cristine Joy Cristobal'];
+const ver = '<div class="ver">Version 2.0.0</div>';
+const sprout = (s = 18, c = '#fff') => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" style="vertical-align:-3px"><path d="M10 18 V9" stroke="${c}" stroke-width="2.2" stroke-linecap="round"/><path d="M10 11 C6 11 3 8 3 5 C7 5 10 7 10 11Z" fill="${c}"/><path d="M10 9 C10 5 13 3 17 3 C17 7 14 9 10 9Z" fill="${c}"/></svg>`;
+
+const designs = [
+  {
+    name: 'Now (for comparison)', line: 'What the loading screen shows today.',
+    html: () => `<div class="credits"><div style="font-size:12px;font-weight:700;letter-spacing:2px">DEVELOPED BY</div>${names.map(n => `<div style="font-size:16px;font-weight:600">${n}</div>`).join('')}${ver}</div>`,
+  },
+  {
+    name: 'Wooden signboard', line: 'A little garden sign on two stakes, like the ones in My Garden. "Made by" is burned into the wood.',
+    html: () => `<div class="credits" style="padding-bottom:10px">
+      <div class="rise" style="position:relative;width:300px">
+        <div style="position:absolute;left:40px;top:60px;width:12px;height:60px;background:#8A5A2B;border-radius:3px"></div>
+        <div style="position:absolute;right:40px;top:60px;width:12px;height:60px;background:#8A5A2B;border-radius:3px"></div>
+        <div style="position:relative;background-image:repeating-linear-gradient(0deg,transparent 0 14px,#A9773C55 14px 16px),linear-gradient(#C9955B,#B98348);border:3px solid #6E4A24;border-radius:12px;padding:8px 10px 10px;box-shadow:0 5px 0 #6E4A24">
+          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#4A2E16">MADE BY</div>
+          ${names.map(n => `<div style="font-size:16px;font-weight:700;color:#FFF6E0;text-shadow:0 2px 0 #6E4A24">${n}</div>`).join('')}
+        </div>
+      </div>
+      <div style="height:22px"></div>${ver}</div>`,
+  },
+  {
+    name: 'Plant tags', line: 'Each name is written on a white plant marker stuck in the grass, like seedlings in a nursery.',
+    html: () => `<div class="credits" style="padding-bottom:12px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:2px;margin-bottom:6px">PLANTED BY</div>
+      <div style="display:flex;gap:14px;align-items:flex-end">
+        ${names.map((n, i) => `<div class="rise" style="animation-delay:${i * 0.25}s;display:flex;flex-direction:column;align-items:center;transform:rotate(${i ? 3 : -3}deg)">
+          <div style="background:#fff;color:#263046;border-radius:10px 10px 4px 4px;padding:7px 10px;width:160px;box-shadow:0 3px 0 #D9D2C0">
+            <div style="color:#2E9142">${sprout(16, '#4CC35A')}</div>
+            <div style="font-size:14px;font-weight:700;line-height:1.15">${n}</div>
+          </div>
+          <div style="width:16px;height:26px;background:#fff;clip-path:polygon(0 0,100% 0,50% 100%);margin-top:-1px"></div>
+        </div>`).join('')}
+      </div>${ver}</div>`,
+  },
+  {
+    name: 'Leaf name cards', line: 'Each name sits on a big leaf, with a vein down the middle. The leaves sway a little.',
+    html: () => `<div class="credits" style="padding-bottom:12px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:2px;margin-bottom:6px">DEVELOPED BY</div>
+      ${names.map((n, i) => `<div class="sway" style="animation-delay:${i * 0.7}s;margin:3px 0"><div style="position:relative;background:#A6E58A;color:#1F5A2A;border-radius:50% 6px 50% 6px / 60% 6px 60% 6px;padding:7px 26px;font-size:16px;font-weight:700;box-shadow:inset 0 -3px 0 #7BC25B">
+        <span style="position:absolute;left:10px;right:10px;top:50%;height:2px;background:#7BC25B;opacity:.5"></span><span style="position:relative">${n}</span></div></div>`).join('')}
+      ${ver}</div>`,
+  },
+  {
+    name: 'Frosted card with initials', line: 'A soft see-through card. Each developer gets a round badge with their initials.',
+    html: () => `<div class="credits" style="padding-bottom:12px">
+      <div class="rise" style="width:310px;background:#ffffff2e;border:2px solid #ffffff66;border-radius:20px;padding:10px 14px;backdrop-filter:blur(4px)">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;margin-bottom:6px">DEVELOPED BY</div>
+        ${names.map((n, i) => `<div style="display:flex;align-items:center;gap:10px;margin:5px 0;text-align:left"><div style="width:34px;height:34px;border-radius:50%;background:${i ? '#FF8FB1' : '#FFC93C'};color:#263046;display:grid;place-items:center;font-weight:700;font-size:14px;border:2px solid #fff">${i ? 'MC' : 'EV'}</div><div style="font-size:16px;font-weight:600">${n}</div></div>`).join('')}
+      </div>${ver}</div>`,
+  },
+  {
+    name: 'Ribbon banner', line: 'A sunny ribbon banner says "A PlantQuest story by", with the names on two white pills underneath.',
+    html: () => `<div class="credits" style="padding-bottom:12px">
+      <div class="rise" style="position:relative;margin-bottom:8px">
+        <div style="position:absolute;left:-18px;top:8px;width:30px;height:28px;background:#F2A100;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,30% 50%)"></div>
+        <div style="position:absolute;right:-18px;top:8px;width:30px;height:28px;background:#F2A100;clip-path:polygon(0 0,100% 0,70% 50%,100% 100%,0 100%)"></div>
+        <div style="position:relative;background:#FFC93C;color:#5B3A00;font-weight:700;font-size:13px;letter-spacing:1.5px;padding:7px 18px;border-radius:4px;box-shadow:0 3px 0 #F2A100">A PLANTQUEST STORY BY</div>
+      </div>
+      ${names.map((n, i) => `<div class="rise" style="animation-delay:${0.2 + i * 0.2}s;background:#fff;color:#263046;border-radius:99px;padding:4px 16px;margin:3px 0;font-size:15px;font-weight:700;box-shadow:0 3px 0 #2E9142">${n}</div>`).join('')}
+      ${ver}</div>`,
+  },
+  {
+    name: 'Seed packet', line: 'A little seed packet with the names printed on it, like the credits on the back of a packet.',
+    html: () => `<div class="credits" style="padding-bottom:10px">
+      <div class="rise" style="width:250px;background:#FFF6E0;border-radius:8px 8px 12px 12px;color:#263046;box-shadow:0 5px 0 #D9C59A;overflow:hidden;transform:rotate(-2deg)">
+        <div style="height:10px;background:repeating-linear-gradient(90deg,#E07A4E 0 6px,#FFF6E0 6px 9px)"></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 10px 8px">
+          <div style="width:46px;height:46px;border-radius:10px;background:#E6F8DD;display:grid;place-items:center;flex:none">${sprout(30, '#4CC35A')}</div>
+          <div style="text-align:left"><div style="font-size:10.5px;font-weight:700;letter-spacing:1.5px;color:#B5522B">GROWN WITH CARE BY</div>${names.map(n => `<div style="font-size:14px;font-weight:700;line-height:1.2">${n}</div>`).join('')}</div>
+        </div>
+      </div>${ver}</div>`,
+  },
+  {
+    name: 'Handwritten signatures', line: 'The names look signed by hand in white, with a small sprout doodle. Warm and personal.',
+    html: () => `<div class="credits" style="padding-bottom:12px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:2px">MADE WITH CARE BY</div>
+      ${names.map((n, i) => `<div class="rise" style="animation-delay:${i * 0.3}s;font-family:'Patrick Hand',cursive;font-size:25px;line-height:1.15;transform:rotate(${i ? 1.5 : -1.5}deg)">${n}</div>`).join('')}
+      <div style="margin-top:2px">${sprout(22)}</div>${ver}</div>`,
+  },
+];
+
+document.getElementById('grid').innerHTML = designs.map((d, i) => `
+  <div class="opt"><div class="phone"><div class="screen"><div class="cover"></div>${d.html().replace('<div class="credits"', '<div class="credits" data-x').replace(/(<div class="credits" data-x[^>]*>)/, '$1<div class="vine"></div>')}</div></div>
+    <h2><b>${i}</b>${d.name}</h2><p>${d.line}</p></div>`).join('');
+</script>
+</body>
+</html>

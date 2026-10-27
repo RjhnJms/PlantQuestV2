@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Binhi Voices</title>
+<style>
+  :root { --bg:#FFF9EC; --card:#fff; --text:#263046; --muted:#6E7191; --leaf:#4CC35A; --leafDark:#2E9142; --grape:#8E6CFF; --border:#E3D6BA; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#1d2230; --card:#262c3d; --text:#f2f2f5; --muted:#b5b8cc; --border:#3a4157; } }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.45 system-ui, sans-serif; }
+  main { max-width:560px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { font-size:28px; margin:0 0 4px; }
+  p.lead { color:var(--muted); margin:0 0 14px; }
+  .bar { display:grid; gap:8px; background:var(--card); border:2px solid var(--border); border-radius:16px; padding:12px; margin-bottom:16px; }
+  .bar label { font-weight:700; font-size:14px; }
+  select { font:inherit; padding:8px; border-radius:10px; border:2px solid var(--border); background:var(--card); color:var(--text); width:100%; }
+  .card { background:var(--card); border:2px solid var(--border); border-radius:20px; padding:14px 16px; margin-bottom:12px; }
+  .card h2 { margin:0; font-size:19px; }
+  .card p { margin:2px 0 10px; color:var(--muted); font-size:14px; }
+  .btns { display:flex; flex-wrap:wrap; gap:8px; }
+  button { font:inherit; font-weight:700; border:0; border-radius:12px; padding:9px 14px; background:var(--leaf); color:#123; cursor:pointer; box-shadow:0 3px 0 var(--leafDark); }
+  button.alt { background:#EFEAFF; color:#4a3aa8; box-shadow:0 3px 0 #cfc3f5; }
+  button:active { transform:translateY(2px); box-shadow:none; }
+  .tag { display:inline-block; font-size:12px; font-weight:700; padding:2px 8px; border-radius:99px; background:#E6F8DD; color:var(--leafDark); margin-left:6px; vertical-align:middle; }
+  .stop { background:#ffe8e0; color:#a33; box-shadow:0 3px 0 #f2b3a3; }
+  small { color:var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Binhi's voice: pick a style</h1>
+  <p class="lead">Each style changes the pitch, the speed and the pauses. On the phone the same settings are used with the phone's own offline voice, so it will sound a little different there, but the character stays.</p>
+
+  <div class="bar">
+    <label for="voice">Base voice (from this computer)</label>
+    <select id="voice"></select>
+    <small id="voiceNote">Loading voices…</small>
+  </div>
+
+  <div id="styles"></div>
+
+  <button class="stop" onclick="speechSynthesis.cancel()">Stop</button>
+</main>
+<script>
+const lines = [
+  ['Hello', "Hi! I am Binhi. Let's learn about plants together!"],
+  ['Question', 'Which part of the plant drinks water from the soil? Tap your answer.'],
+  ['Fun fact', 'Makahiya means shy. Its leaves fold up when you touch them. After a few minutes, they open again.'],
+];
+const styles = [
+  { name: 'Cheerful', tag: 'now', pitch: 1.15, rate: 1.0, pause: 0, about: "What the app uses today: a little higher and bright." },
+  { name: 'Little sprout', pitch: 1.6, rate: 1.0, pause: 150, about: 'High and small, like a tiny seedling talking. Very cute; might be hard to understand for some kids.' },
+  { name: 'Friendly kuya / ate', pitch: 1.25, rate: 0.9, pause: 250, about: 'Warm and a bit slower, like an older brother or sister helping. Easy to follow.' },
+  { name: 'Storyteller', pitch: 1.05, rate: 0.82, pause: 500, about: 'Slow with longer pauses between sentences, like reading a picture book aloud.' },
+  { name: 'Bouncy', pitch: 1.4, rate: 1.12, pause: 80, about: 'Fast and excited. Fun for cheers; can feel rushed for questions.' },
+  { name: 'Gentle teacher', pitch: 0.95, rate: 0.85, pause: 300, about: 'Calm and clear. Good for younger kids who are still learning to read.' },
+];
+
+const pick = document.getElementById('voice');
+let voices = [];
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+  if (!voices.length) return;
+  pick.innerHTML = '';
+  const rank = v => (/fil|tl|PH/i.test(v.lang) ? 0 : /en-US|en-GB|en-AU/.test(v.lang) ? 1 : /^en/.test(v.lang) ? 2 : 3);
+  voices.slice().sort((a, b) => rank(a) - rank(b)).forEach(v => {
+    const o = document.createElement('option');
+    o.value = v.name; o.textContent = `${v.name} (${v.lang})`;
+    pick.appendChild(o);
+  });
+  document.getElementById('voiceNote').textContent = `${voices.length} voices on this computer. Try a few; the phone will use its own.`;
+}
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+function say(style, text) {
+  speechSynthesis.cancel();
+  const voice = voices.find(v => v.name === pick.value);
+  // Speak sentence by sentence so the style's pauses can be heard.
+  const parts = text.match(/[^.!?]+[.!?]*/g) || [text];
+  // Chain sentences with the style's pause between them.
+  let i = 0;
+  const speakNext = () => {
+    if (i >= parts.length) return;
+    const u = new SpeechSynthesisUtterance(parts[i].trim());
+    if (voice) u.voice = voice;
+    u.pitch = style.pitch; u.rate = style.rate;
+    u.onend = () => { i++; setTimeout(speakNext, style.pause); };
+    speechSynthesis.speak(u);
+  };
+  speakNext();
+}
+
+const box = document.getElementById('styles');
+styles.forEach(s => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `<h2>${s.name}${s.tag ? ` <span class="tag">${s.tag}</span>` : ''}</h2><p>${s.about}<br><small>pitch ${s.pitch} · speed ${s.rate} · pause ${s.pause} ms</small></p><div class="btns"></div>`;
+  const btns = card.querySelector('.btns');
+  lines.forEach(([label, text], i) => {
+    const b = document.createElement('button');
+    if (i) b.className = 'alt';
+    b.textContent = '▶ ' + label;
+    b.onclick = () => say(s, text);
+    btns.appendChild(b);
+  });
+  box.appendChild(card);
+});
+</script>
+</body>
+</html>

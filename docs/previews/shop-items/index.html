@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Shop Items</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --page:#F4EEDF; --card:#fff; --border:#F0E6D0; --deep:#E3D6BA; --text:#263046; --muted:#6E7191; --leaf:#4CC35A; --leafDark:#2E9142; --leafTint:#E6F8DD; --sunTint:#FFF1C7; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--text); font:15px/1.4 "Fredoka", system-ui, sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:20px 16px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start; }
+  @media (max-width:760px) { .wrap { grid-template-columns:1fr; } .mirror { position:static !important; } }
+  h1 { margin:0 0 4px; font-size:26px; }
+  .lead { color:var(--muted); margin:0 0 14px; font-family:Nunito, system-ui, sans-serif; }
+  .mirror { position:sticky; top:16px; background:#fff; border:2px solid var(--border); border-bottom-width:6px; border-radius:26px; padding:14px; text-align:center; }
+  .mirror .stage { height:250px; border-radius:18px; overflow:hidden; position:relative; background:linear-gradient(#DFF4FF,#F2FBEF); }
+  .mirror .stage svg.big { position:absolute; left:50%; bottom:6px; transform:translateX(-50%); }
+  .mirror p { margin:8px 0 0; font-size:13px; color:var(--muted); }
+  .mirror button { font:inherit; font-weight:700; border:0; border-radius:12px; padding:8px 14px; margin-top:10px; background:#EFEAFF; color:#4a3aa8; box-shadow:0 3px 0 #cfc3f5; cursor:pointer; }
+  section { margin-bottom:22px; }
+  section h2 { margin:0 0 2px; font-size:20px; }
+  section .sub { margin:0 0 10px; color:var(--muted); font-size:14px; font-family:Nunito, system-ui, sans-serif; }
+  .items { display:grid; grid-template-columns:repeat(auto-fill, minmax(132px, 1fr)); gap:10px; }
+  .item { background:#fff; border:2px solid var(--border); border-bottom-width:5px; border-radius:18px; padding:8px 6px 10px; text-align:center; cursor:pointer; transition:transform .12s, border-color .12s; position:relative; }
+  .item:hover { transform:translateY(-2px); }
+  .item.on { border-color:var(--leaf); background:var(--leafTint); }
+  .item.have { opacity:.55; cursor:default; }
+  .item .name { font-weight:600; font-size:14px; }
+  .price { display:inline-flex; align-items:center; gap:3px; font-weight:700; font-size:13px; color:var(--leafDark); }
+  .tag { position:absolute; top:6px; left:6px; font-size:10px; font-weight:700; padding:1px 6px; border-radius:99px; background:var(--sunTint); color:#8a6200; }
+  .item.have .tag { background:#eee; color:#777; }
+  .swatches { display:flex; justify-content:center; gap:3px; margin:6px 0; }
+  .swatches i { width:16px; height:16px; border-radius:50%; display:block; box-shadow:inset 0 -2px 0 #0002; }
+  @keyframes flit { 0% { transform:translate(0,0) rotate(-6deg); } 50% { transform:translate(6px,-8px) rotate(6deg); } 100% { transform:translate(0,0) rotate(-6deg); } }
+  .flit { animation:flit 2.4s ease-in-out infinite; transform-box:fill-box; }
+  @keyframes flap { 50% { transform:scaleX(.45); } }
+  .flap { animation:flap .35s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="mirror">
+    <div class="t" style="font-weight:700;font-size:18px">Try it on</div>
+    <div class="stage" id="stage"></div>
+    <p id="wearing">Tap any item to try it on Binhi.</p>
+    <button onclick="worn={};render()">Take everything off</button>
+  </div>
+  <div>
+    <h1>New things for the shop</h1>
+    <p class="lead">Ideas for about 25 new items, in the shop's leaf prices (today it sells 6). Grey ones are already in the shop. Tap items to try them on Binhi. Tell me which groups (or single items) to add.</p>
+    <div id="sections"></div>
+  </div>
+</div>
+<script>
+const O = 'stroke="#2B3148" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"';
+const leaf = s => `<svg width="${s}" height="${s}" viewBox="0 0 20 20"><path d="M4 16 C2 8 8 2 17 3 C18 12 12 18 4 16Z" fill="#4CC35A" stroke="#2E9142" stroke-width="1.5"/></svg>`;
+
+// Pot patterns, drawn inside the pot (clip). The pot spans x 26–94, y 66–128.
+const patterns = {
+  plain: '',
+  stripes: `${[78, 92, 106, 120].map(y => `<rect x="20" y="${y}" width="80" height="6" fill="#F7B267"/>`).join('')}`,
+  dots: `${[[40, 84], [60, 96], [80, 84], [44, 112], [76, 112], [60, 122]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4.5" fill="#FFE08A"/>`).join('')}`,
+  banig: `${Array.from({ length: 8 }, (_, i) => `<path d="M${10 + i * 14} 66 L${-20 + i * 14} 130" stroke="#F7D08A" stroke-width="5"/><path d="M${10 + i * 14} 130 L${-20 + i * 14 + 60} 66" stroke="#E86A7A" stroke-width="2.5" opacity=".8"/>`).join('')}`,
+  jeepney: `<rect x="20" y="82" width="80" height="7" fill="#E0465A"/><rect x="20" y="91" width="80" height="5" fill="#FFC93C"/><rect x="20" y="98" width="80" height="5" fill="#3B7DDD"/>${[34, 50, 66, 82].map(x => `<circle cx="${x}" cy="116" r="3.5" fill="#fff" stroke="#9aa3b5"/>`).join('')}`,
+  waves: `${[88, 104, 120].map(y => `<path d="M14 ${y} q8 -7 16 0 t16 0 t16 0 t16 0 t16 0 t16 0" stroke="#6EC6FF" stroke-width="4" fill="none"/>`).join('')}`,
+  gingham: `${[70, 86, 102, 118].map(y => `<rect x="20" y="${y}" width="80" height="8" fill="#FF8FB1" opacity=".45"/>`).join('')}${[28, 44, 60, 76, 92].map(x => `<rect x="${x}" y="60" width="8" height="80" fill="#FF8FB1" opacity=".45"/>`).join('')}`,
+  watermelon: `<rect x="20" y="118" width="80" height="14" fill="#4CC35A"/><rect x="20" y="114" width="80" height="5" fill="#E6F8DD"/>${[[40, 88], [60, 100], [80, 88], [50, 106], [72, 108]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="2" ry="3.2" fill="#263046"/>`).join('')}`,
+  rainbow: `${['#FF5C7A', '#FF9F43', '#FFC93C', '#4CC35A', '#6EC6FF', '#8E6CFF'].map((c, i) => `<rect x="20" y="${70 + i * 10}" width="80" height="10" fill="${c}" opacity=".75"/>`).join('')}`,
+  capiz: `${[[30, 76], [50, 76], [70, 76], [90, 76], [40, 96], [60, 96], [80, 96], [30, 116], [50, 116], [70, 116], [90, 116]].map(([x, y]) => `<rect x="${x - 8}" y="${y - 8}" width="16" height="16" rx="2" fill="#F4F0FF" stroke="#C9B48A" stroke-width="1.5"/><circle cx="${x - 3}" cy="${y - 3}" r="2" fill="#fff"/>`).join('')}`,
+};
+const potColor = { plain: '#E07A4E', stripes: '#E07A4E', dots: '#E07A4E', banig: '#E2B866', jeepney: '#EDEFF3', waves: '#3B7DDD', gingham: '#FFFFFF', watermelon: '#FF6F7F', rainbow: '#FFFFFF', capiz: '#E9D6B0' };
+
+// Things to wear, as layers on a 120 × 140 Binhi.
+const wear = {
+  // hats
+  salakot: `<path d="M24 40 L60 14 L96 40 Q60 48 24 40Z" fill="#D9A441" ${O}/><path d="M38 34 L60 18 L82 34" stroke="#B98328" stroke-width="2" fill="none"/>`,
+  crown: `${[30, 44, 60, 76, 90].map((x, i) => `<g>${[0, 72, 144, 216, 288].map(a => `<ellipse cx="${x}" cy="${36 - (i % 2) * 4 - 5}" rx="3.6" ry="5.4" fill="${['#FF5C7A', '#FFC93C', '#fff', '#FF8FB1', '#FF9F43'][i]}" stroke="#C9878F" stroke-width=".8" transform="rotate(${a} ${x} ${36 - (i % 2) * 4})"/>`).join('')}<circle cx="${x}" cy="${36 - (i % 2) * 4}" r="2.6" fill="#FFC93C"/></g>`).join('')}<path d="M26 40 Q60 30 94 40" stroke="#3E9A3A" stroke-width="3" fill="none"/>`,
+  gradcap: `<path d="M40 34 Q60 42 80 34 V44 Q60 52 40 44Z" fill="#2B3148" ${O}/><path d="M22 30 L60 16 L98 30 L60 42Z" fill="#2B3148" ${O}/><path d="M60 29 L88 36 V50" stroke="#FFC93C" stroke-width="2.5" fill="none"/><circle cx="88" cy="52" r="3.5" fill="#FFC93C"/>`,
+  strawhat: `<ellipse cx="60" cy="40" rx="40" ry="9" fill="#F2D27A" ${O}/><path d="M38 38 Q38 18 60 18 Q82 18 82 38Z" fill="#F2D27A" ${O}/><path d="M38 34 Q60 40 82 34" stroke="#E86A7A" stroke-width="5" fill="none"/>`,
+  bandana: `<path d="M26 46 Q60 30 94 46 L92 54 Q60 40 28 54Z" fill="#E0465A" ${O}/>${[36, 50, 64, 78].map(x => `<circle cx="${x + 2}" cy="${45 - Math.sin((x - 26) / 68 * Math.PI) * 6}" r="1.8" fill="#fff"/>`).join('')}<path d="M92 50 L104 58 L98 46Z" fill="#E0465A" ${O}/>`,
+  // eyes
+  sunglasses: `<rect x="34" y="88" width="22" height="14" rx="5" fill="#263046"/><rect x="64" y="88" width="22" height="14" rx="5" fill="#263046"/><path d="M56 93 H64" stroke="#263046" stroke-width="3"/><path d="M38 91 l6 0" stroke="#fff" stroke-width="2" opacity=".6"/>`,
+  roundglasses: `<circle cx="46" cy="95" r="10" fill="#fff" fill-opacity=".25" stroke="#8A5A2B" stroke-width="3"/><circle cx="74" cy="95" r="10" fill="#fff" fill-opacity=".25" stroke="#8A5A2B" stroke-width="3"/><path d="M56 94 Q60 91 64 94" stroke="#8A5A2B" stroke-width="3" fill="none"/>`,
+  heartglasses: `${[46, 74].map(x => `<path d="M${x} 104 C${x - 14} 96 ${x - 12} 84 ${x - 5} 86 C${x - 2} 87 ${x} 89 ${x} 91 C${x} 89 ${x + 2} 87 ${x + 5} 86 C${x + 12} 84 ${x + 14} 96 ${x} 104Z" fill="#FF5C7A" stroke="#B5303F" stroke-width="2"/>`).join('')}<path d="M56 93 H64" stroke="#B5303F" stroke-width="3"/>`,
+  goggles: `<path d="M28 94 H92" stroke="#8A5A2B" stroke-width="5"/>${[46, 74].map(x => `<circle cx="${x}" cy="94" r="11" fill="#9FDcFF" stroke="#5B6474" stroke-width="4"/><path d="M${x - 5} ${90} q3 -3 7 -2" stroke="#fff" stroke-width="2" fill="none"/>`).join('')}`,
+  // neck
+  garland: `${Array.from({ length: 11 }, (_, i) => { const x = 24 + i * 7.2, y = 74 + Math.sin(i / 10 * Math.PI) * 10; return `<circle cx="${x}" cy="${y}" r="4.3" fill="#fff" stroke="#C9C3B0" stroke-width="1"/>`; }).join('')}`,
+  bowtie: `<path d="M60 76 L44 68 V84Z" fill="#E0465A" ${O}/><path d="M60 76 L76 68 V84Z" fill="#E0465A" ${O}/><circle cx="60" cy="76" r="4.5" fill="#B5303F" ${O}/>`,
+  scarf: `<path d="M22 70 Q60 84 98 70 L98 78 Q60 92 22 78Z" fill="#4FA8D8" ${O}/><path d="M80 80 L86 104 L76 102 L72 82Z" fill="#4FA8D8" ${O}/><path d="M30 76 Q60 87 90 76" stroke="#fff" stroke-width="2" fill="none" stroke-dasharray="4 4"/>`,
+  // friends
+  butterfly: `<g transform="translate(96 30)"><g class="flit"><g class="flap"><path d="M0 0 C-12 -14 -18 -2 -10 4 C-16 10 -6 16 0 4 C6 16 16 10 10 4 C18 -2 12 -14 0 0Z" fill="#FF8FB1" stroke="#2B3148" stroke-width="1.8"/></g><path d="M0 -4 V8" stroke="#2B3148" stroke-width="2.4"/></g></g>`,
+  ladybug: `<g transform="translate(86 62)"><ellipse cx="0" cy="0" rx="8" ry="6.5" fill="#E0465A" stroke="#2B3148" stroke-width="1.8"/><path d="M0 -6.5 V6.5" stroke="#2B3148" stroke-width="1.4"/><circle cx="-8" cy="0" r="3.4" fill="#2B3148"/><circle cx="-3" cy="-2" r="1.4" fill="#2B3148"/><circle cx="3" cy="2" r="1.4" fill="#2B3148"/><circle cx="4" cy="-3" r="1.2" fill="#2B3148"/></g>`,
+  bird: `<g transform="translate(70 24)"><g class="flit" style="animation-duration:3.5s"><ellipse cx="0" cy="0" rx="10" ry="8" fill="#6EC6FF" stroke="#2B3148" stroke-width="1.8"/><circle cx="7" cy="-5" r="6" fill="#6EC6FF" stroke="#2B3148" stroke-width="1.8"/><circle cx="9" cy="-6" r="1.4" fill="#2B3148"/><path d="M13 -5 L18 -4 L13 -2Z" fill="#FFC93C"/><path d="M-4 -2 Q-8 4 2 4" stroke="#2B3148" stroke-width="1.6" fill="#3BA4E6"/></g></g>`,
+  bee: `<g transform="translate(22 44)"><g class="flit" style="animation-duration:1.8s"><ellipse cx="0" cy="0" rx="8" ry="6" fill="#FFC93C" stroke="#2B3148" stroke-width="1.8"/><path d="M-2 -6 V6 M3 -5.5 V5.5" stroke="#2B3148" stroke-width="2"/><g class="flap"><ellipse cx="0" cy="-9" rx="5" ry="3.5" fill="#E5F5FF" stroke="#6EC6FF" stroke-width="1.2"/></g></g></g>`,
+};
+const slotOf = { salakot: 'hat', crown: 'hat', gradcap: 'hat', strawhat: 'hat', bandana: 'hat', sunglasses: 'eyes', roundglasses: 'eyes', heartglasses: 'eyes', goggles: 'eyes', garland: 'neck', bowtie: 'neck', scarf: 'neck', butterfly: 'friend', ladybug: 'friend', bird: 'friend', bee: 'friend' };
+
+const backgrounds = {
+  meadow: 'linear-gradient(#DFF4FF,#F2FBEF)',
+  beach: 'linear-gradient(#8FD3FF 0 55%, #6EC6FF 55% 68%, #F6DFA6 68%)',
+  terraces: 'linear-gradient(#BFE9FF 0 40%, #8FD16A 40% 52%, #A6E58A 52% 64%, #7BC25B 64% 76%, #9BD15A 76%)',
+  night: 'radial-gradient(circle at 75% 22%, #FFF6C9 0 7%, transparent 7.5%), linear-gradient(#26305A, #3E4C86)',
+  fiesta: 'repeating-linear-gradient(90deg, #FF5C7A 0 14px, #FFC93C 14px 28px, #6EC6FF 28px 42px, #4CC35A 42px 56px) top/100% 12px no-repeat, linear-gradient(#FFF1C7, #FFE3B0)',
+};
+
+function binhi(o = {}, size = 120) {
+  const pat = o.pattern || 'plain';
+  return `<svg class="${size > 120 ? 'big' : ''}" width="${size}" height="${size * 140 / 120}" viewBox="0 0 120 140">
+    <defs><clipPath id="pot${size}${pat}"><path d="M26 66 H94 L86 128 Q85 132 81 132 H39 Q35 132 34 128Z"/></clipPath></defs>
+    <ellipse cx="60" cy="134" rx="34" ry="5" fill="#2E6B2A" opacity=".18"/>
+    <path d="M60 62 V36" stroke="#2E9142" stroke-width="5" stroke-linecap="round"/>
+    <path d="M60 44 C46 26 30 30 28 38 C38 46 50 48 60 44Z" fill="#4CC35A" ${O}/>
+    <path d="M60 40 C70 20 88 20 92 28 C84 38 72 42 60 40Z" fill="#4CC35A" ${O}/>
+    <path d="M26 66 H94 L86 128 Q85 132 81 132 H39 Q35 132 34 128Z" fill="${potColor[pat]}"/>
+    <g clip-path="url(#pot${size}${pat})">${patterns[pat]}</g>
+    <path d="M26 66 H94 L86 128 Q85 132 81 132 H39 Q35 132 34 128Z" fill="none" ${O}/>
+    <rect x="18" y="58" width="84" height="14" rx="6" fill="${pat === 'plain' || pat === 'stripes' || pat === 'dots' ? '#E9906A' : potColor[pat]}" ${O}/>
+    <circle cx="46" cy="96" r="4.5" fill="#263046"/><circle cx="74" cy="96" r="4.5" fill="#263046"/>
+    <circle cx="47.5" cy="94.5" r="1.4" fill="#fff"/><circle cx="75.5" cy="94.5" r="1.4" fill="#fff"/>
+    <path d="M52 108 Q60 115 68 108" stroke="#263046" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="38" cy="106" rx="5" ry="3" fill="#FF8FB1" opacity=".55"/><ellipse cx="82" cy="106" rx="5" ry="3" fill="#FF8FB1" opacity=".55"/>
+    ${['neck', 'eyes', 'hat', 'friend'].map(s => o[s] ? wear[o[s]] : '').join('')}
+  </svg>`;
+}
+
+const groups = [
+  { title: 'Hats', sub: 'Binhi wears one hat at a time.', items: [
+    ['salakot', 'Salakot hat', 50, true], ['crown', 'Flower crown', 45], ['strawhat', 'Straw hat', 40], ['bandana', 'Bandana', 25], ['gradcap', 'Graduation cap', 70],
+  ] },
+  { title: 'Glasses', sub: 'One pair at a time.', items: [
+    ['sunglasses', 'Sunglasses', 40, true], ['roundglasses', 'Round glasses', 35], ['heartglasses', 'Heart glasses', 45], ['goggles', 'Explorer goggles', 55],
+  ] },
+  { title: 'Around the neck', sub: 'One at a time.', items: [
+    ['garland', 'Sampaguita garland', 60, true], ['bowtie', 'Bow tie', 30], ['scarf', 'Scout scarf', 35],
+  ] },
+  { title: 'Little friends', sub: 'A friend that flies or sits near Binhi, on Home and in the garden.', items: [
+    ['butterfly', 'Butterfly friend', 50], ['ladybug', 'Ladybug friend', 40], ['bee', 'Bee friend', 45], ['bird', 'Maya bird friend', 70],
+  ] },
+  { title: 'Pot patterns', sub: 'One pattern at a time.', pots: [
+    ['stripes', 'Stripes pot', 20, true], ['dots', 'Dots pot', 30, true], ['banig', 'Banig pot', 80, true], ['jeepney', 'Jeepney pot', 60], ['waves', 'Ocean waves pot', 40], ['gingham', 'Picnic pot', 35], ['watermelon', 'Pakwan pot', 45], ['rainbow', 'Rainbow pot', 75], ['capiz', 'Capiz pot', 65],
+  ] },
+  { title: 'Binhi\'s spot', sub: 'The background behind Binhi in his corner on Home.', bgs: [
+    ['beach', 'Beach', 80], ['terraces', 'Rice terraces', 100], ['night', 'Moonlit night', 90], ['fiesta', 'Fiesta', 70],
+  ] },
+  { title: 'Colouring packs', sub: 'Extra colours for colouring pages (added to the 12 you have).', packs: [
+    ['Pastel pack', 30, ['#FFC4D0', '#FFE0B3', '#FFF5B8', '#C9F0C0', '#C6E7FF', '#DCCBFF']],
+    ['Fiesta pack', 30, ['#E0006A', '#FF6B00', '#00A86B', '#0057B8', '#FFD400', '#7A1FA2']],
+    ['Earth pack', 25, ['#5C3A1E', '#8A5A2B', '#C08A4B', '#6B8E23', '#A0522D', '#D2B48C']],
+    ['Gold & silver', 60, ['#D4AF37', '#F2D27A', '#B0B7C3', '#E3E7EE', '#C98A4B', '#9AA3B5']],
+  ] },
+];
+
+let worn = {};
+function render() {
+  document.getElementById('stage').innerHTML = binhi(worn, 190);
+  document.getElementById('stage').style.background = backgrounds[worn.bg || 'meadow'];
+  const names = [];
+  document.querySelectorAll('.item').forEach(el => {
+    const k = el.dataset.key, kind = el.dataset.kind;
+    const on = kind === 'wear' ? worn[slotOf[k]] === k : kind === 'pot' ? worn.pattern === k : kind === 'bg' ? worn.bg === k : false;
+    el.classList.toggle('on', on);
+    if (on) names.push(el.querySelector('.name').textContent);
+  });
+  document.getElementById('wearing').textContent = names.length ? 'Wearing: ' + names.join(', ') : 'Tap any item to try it on Binhi.';
+}
+function pick(kind, key) {
+  if (kind === 'wear') { const s = slotOf[key]; worn[s] = worn[s] === key ? undefined : key; }
+  if (kind === 'pot') worn.pattern = worn.pattern === key ? undefined : key;
+  if (kind === 'bg') worn.bg = worn.bg === key ? undefined : key;
+  render();
+}
+const price = p => `<span class="price">${leaf(14)} ${p}</span>`;
+document.getElementById('sections').innerHTML = groups.map(g => `<section><h2>${g.title}</h2><p class="sub">${g.sub}</p><div class="items">
+  ${(g.items || []).map(([k, n, p, have]) => `<div class="item ${have ? 'have' : ''}" data-kind="wear" data-key="${k}" onclick="pick('wear','${k}')"><span class="tag">${have ? 'In shop' : 'New'}</span>${binhi({ [slotOf[k]]: k }, 96)}<div class="name">${n}</div>${price(p)}</div>`).join('')}
+  ${(g.pots || []).map(([k, n, p, have]) => `<div class="item ${have ? 'have' : ''}" data-kind="pot" data-key="${k}" onclick="pick('pot','${k}')"><span class="tag">${have ? 'In shop' : 'New'}</span>${binhi({ pattern: k }, 96)}<div class="name">${n}</div>${price(p)}</div>`).join('')}
+  ${(g.bgs || []).map(([k, n, p]) => `<div class="item" data-kind="bg" data-key="${k}" onclick="pick('bg','${k}')"><span class="tag">New</span><div style="height:112px;border-radius:12px;background:${backgrounds[k]};display:grid;place-items:end center;overflow:hidden">${binhi({}, 70)}</div><div class="name" style="margin-top:4px">${n}</div>${price(p)}</div>`).join('')}
+  ${(g.packs || []).map(([n, p, cs]) => `<div class="item" data-kind="pack"><span class="tag">New</span><div style="height:40px"></div><div class="swatches">${cs.slice(0, 3).map(c => `<i style="background:${c}"></i>`).join('')}</div><div class="swatches">${cs.slice(3).map(c => `<i style="background:${c}"></i>`).join('')}</div><div class="name">${n}</div>${price(p)}</div>`).join('')}
+</div></section>`).join('');
+render();
+</script>
+</body>
+</html>

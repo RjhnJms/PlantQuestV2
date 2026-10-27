@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz Tab Designs</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root { --page:#F4EEDF; --card:#fff; --border:#F0E6D0; --deep:#E3D6BA; --text:#263046; --muted:#6E7191;
+          --leaf:#4CC35A; --leafDark:#2E9142; --leafTint:#E6F8DD; --sky:#6EC6FF; --skyDark:#3BA4E6; --skyTint:#E5F5FF;
+          --sun:#FFC93C; --sunDark:#F2A100; --sunTint:#FFF1C7; --grape:#8E6CFF; --grapeDark:#6B4FD8; --grapeTint:#EFEAFF;
+          --coral:#FF7A59; --coralTint:#FFE8E0; --bg:#FFF9EC; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--text); font:15px/1.4 "Nunito", system-ui, sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { margin:0 0 4px; font-size:26px; }
+  .lead { color:var(--muted); margin:0 0 18px; max-width:760px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(350px, 1fr)); gap:26px 18px; }
+  .opt h2 { margin:10px 4px 2px; font-size:19px; }
+  .opt h2 b { display:inline-grid; place-items:center; width:28px; height:28px; border-radius:9px; background:var(--leaf); color:#fff; margin-right:6px; font-size:16px; }
+  .opt p { margin:0 4px; color:var(--muted); font-size:14px; }
+  .phone { width:340px; height:700px; margin:0 auto; border:10px solid #263046; border-radius:38px; overflow:hidden; position:relative; background:var(--bg); font-family:"Fredoka", system-ui, sans-serif; }
+  .scroll { position:absolute; inset:0 0 62px 0; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; }
+  .scroll::-webkit-scrollbar { display:none; }
+  .nav { position:absolute; left:0; right:0; bottom:0; height:62px; background:#fff; border-top:2px solid var(--border); display:flex; justify-content:space-around; align-items:center; font-size:11px; font-weight:600; color:var(--muted); }
+  .nav span { display:grid; justify-items:center; gap:2px; }
+  .nav span i { width:24px; height:24px; border-radius:8px; background:#EDE6D6; display:block; }
+  .nav span.on { color:var(--text); } .nav span.on i { background:var(--sun); }
+  .pad { padding:16px; }
+  .row { display:flex; align-items:center; gap:10px; }
+  .t-display { font-size:30px; font-weight:700; line-height:1.1; }
+  .t-title { font-size:19px; font-weight:700; }
+  .t-head { font-size:16px; font-weight:700; }
+  .t-small { font-size:12.5px; color:var(--muted); font-weight:500; }
+  .t-label { font-size:11px; font-weight:700; letter-spacing:1px; }
+  .chip { display:inline-block; padding:2px 9px; border-radius:99px; font-size:12px; font-weight:700; background:var(--leafTint); color:var(--leafDark); }
+  .btn { display:block; text-align:center; font-weight:700; font-size:16px; padding:11px; border-radius:16px; background:var(--leaf); color:#fff; box-shadow:0 4px 0 var(--leafDark); }
+  .card { background:#fff; border:2px solid var(--border); border-bottom-width:5px; border-radius:20px; padding:12px; }
+  .pq { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .tile { background:#fff; border:2px solid var(--border); border-bottom-width:4px; border-radius:16px; padding:6px 4px; text-align:center; font-size:12px; font-weight:600; }
+  .tile svg { display:block; margin:0 auto; }
+  @keyframes bob { to { transform:translateY(-5px); } }
+  .bob { animation:bob 1.3s ease-in-out infinite alternate; }
+  @keyframes pulse { 50% { transform:scale(1.04); } }
+  .pulse { animation:pulse 1.8s ease-in-out infinite; }
+  @keyframes beam { from { opacity:.25; } to { opacity:.55; } }
+  .beam { animation:beam 2.2s ease-in-out infinite alternate; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page:#1d2230; } h1, .opt h2 { color:#f2f2f5; } .lead, .opt p { color:#b5b8cc; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Quiz tab: pick a design</h1>
+  <p class="lead">Every design keeps the same things: smart review when something is waiting, your level quiz (big) and the challenge level, the Match it game, the plant quizzes with your scores, and how many more unlock. Each phone scrolls.</p>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+const nav = `<div class="nav">${['Home','Plants','Quiz','Shop','Me'].map(n => `<span class="${n === 'Quiz' ? 'on' : ''}"><i></i>${n}</span>`).join('')}</div>`;
+const binhi = (w = 56, extra = '') => `<svg width="${w}" height="${w * 1.15}" viewBox="0 0 44 50" style="flex:none" ${extra}><path d="M22 14 C22 6 16 2 10 4 C13 10 17 13 22 14 C23 7 29 3 35 5 C32 11 27 13 22 14" fill="#4CC35A" stroke="#2E9142" stroke-width="2"/><path d="M8 30 H36 L33 47 Q32 49 30 49 H14 Q12 49 11 47Z" fill="#E07A4E" stroke="#B5522B" stroke-width="2"/><rect x="6" y="26" width="32" height="6" rx="3" fill="#E9906A" stroke="#B5522B" stroke-width="2"/><circle cx="17" cy="38" r="2.4" fill="#263046"/><circle cx="27" cy="38" r="2.4" fill="#263046"/><path d="M19 43 Q22 46 25 43" stroke="#263046" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
+const leafIcon = (s = 16, c = '#4CC35A') => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" style="vertical-align:-3px"><path d="M4 16 C2 8 8 2 17 3 C18 12 12 18 4 16Z" fill="${c}" stroke="#2E9142" stroke-width="1.5"/><path d="M5 15 L13 7" stroke="#2E9142" stroke-width="1.3"/></svg>`;
+const tick = (s = 16) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" style="vertical-align:-3px"><circle cx="10" cy="10" r="9" fill="#4CC35A" stroke="#2E9142" stroke-width="1.5"/><path d="M6 10 L9 13 L14 7" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const lock = (s = 16) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" style="vertical-align:-3px"><rect x="4" y="9" width="12" height="9" rx="2" fill="#C9BFA8"/><path d="M7 9 V6 a3 3 0 0 1 6 0 V9" stroke="#C9BFA8" stroke-width="2.2" fill="none"/></svg>`;
+
+// Little plant drawings for the plant quizzes.
+function plant(kind, s = 40) {
+  const stem = `<path d="M20 38 V20" stroke="#2E9142" stroke-width="2.4"/>`;
+  const pot = '';
+  const bodies = {
+    sampaguita: `${stem}<ellipse cx="13" cy="28" rx="6" ry="3" fill="#4CC35A" transform="rotate(-30 13 28)"/><ellipse cx="27" cy="27" rx="6" ry="3" fill="#4CC35A" transform="rotate(30 27 27)"/>${petals(20, 15, '#fff', 6)}`,
+    gumamela: `${stem}<ellipse cx="13" cy="28" rx="7" ry="3.5" fill="#3E9A3A" transform="rotate(-30 13 28)"/><ellipse cx="27" cy="29" rx="7" ry="3.5" fill="#3E9A3A" transform="rotate(30 27 29)"/>${petals(20, 15, '#FF5C7A', 8)}`,
+    makahiya: `<path d="M20 38 Q16 26 10 20 M20 38 Q24 26 30 18" stroke="#B5522B" stroke-width="2" fill="none"/>${[[10, 20], [30, 18]].map(([x, y]) => `<g>${Array.from({ length: 10 }, (_, i) => `<path d="M${x} ${y} l${Math.cos(i * 0.63) * 6} ${Math.sin(i * 0.63) * 6}" stroke="#FF8FB1" stroke-width="1.6"/>`).join('')}</g>`).join('')}<ellipse cx="20" cy="30" rx="8" ry="2.4" fill="#4CC35A"/>`,
+    kalamansi: `<rect x="18" y="26" width="4" height="12" fill="#8A5A2B"/><circle cx="20" cy="18" r="12" fill="#3E9A3A" stroke="#2E7A2E" stroke-width="1.5"/>${[[14, 14], [25, 16], [18, 23], [27, 23]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="#FF9F43"/>`).join('')}`,
+    malunggay: `<path d="M20 38 V8" stroke="#8A5A2B" stroke-width="2.4"/>${[10, 16, 22, 28].map(y => `<g>${[-1, 1].map(d => Array.from({ length: 3 }, (_, i) => `<ellipse cx="${20 + d * (5 + i * 4)}" cy="${y + i}" rx="2.2" ry="1.4" fill="#4CC35A"/>`).join('')).join('')}</g>`).join('')}`,
+    palay: `${Array.from({ length: 6 }, (_, i) => `<path d="M20 38 Q${12 + i * 3} 24 ${6 + i * 5.6} ${10 + (i % 2) * 4}" stroke="#7FB33A" stroke-width="2" fill="none"/>`).join('')}<path d="M24 14 q4 -2 6 2" stroke="#E2B13C" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  };
+  return `<svg width="${s}" height="${s}" viewBox="0 0 40 40">${pot}${bodies[kind]}</svg>`;
+}
+function petals(x, y, c, r) {
+  return [0, 72, 144, 216, 288].map(a => `<ellipse cx="${x}" cy="${y - r * 0.55}" rx="${r * 0.42}" ry="${r * 0.62}" fill="${c}" stroke="#C9878F" stroke-width=".8" transform="rotate(${a} ${x} ${y})"/>`).join('') + `<circle cx="${x}" cy="${y}" r="${r * 0.32}" fill="#FFC93C"/>`;
+}
+// What the child has done (sample data).
+const quizzes = [
+  { id: 'sampaguita', name: 'Sampaguita', score: [3, 3] },
+  { id: 'gumamela', name: 'Gumamela', score: [2, 3] },
+  { id: 'makahiya', name: 'Makahiya', score: null },
+  { id: 'kalamansi', name: 'Kalamansi', score: null },
+  { id: 'malunggay', name: 'Malunggay', score: [1, 3] },
+  { id: 'palay', name: 'Palay', score: null },
+];
+const scoreText = q => q.score ? `${q.score[0]}/${q.score[1]}` : 'New!';
+
+const designs = [];
+
+// ---------------------------------------------------------------- A
+designs.push({
+  name: 'Game show stage', line: 'Binhi hosts a quiz show. The big glowing button starts your level; review is the "bonus round".',
+  html: () => `<div class="scroll">
+    <div style="position:relative;height:300px;background:radial-gradient(ellipse at 50% 30%, #6B4FD8, #2B1F5E 75%);overflow:hidden">
+      <svg width="320" height="300" viewBox="0 0 320 300" style="position:absolute;inset:0">
+        <path class="beam" d="M70 0 L20 300 H120Z" fill="#FFF1C7"/><path class="beam" d="M250 0 L200 300 H300Z" fill="#FFF1C7" style="animation-delay:1s"/>
+        <path d="M0 0 H70 Q50 120 60 300 H0Z" fill="#E0465A"/><path d="M320 0 H250 Q270 120 260 300 H320Z" fill="#E0465A"/>
+        <path d="M20 0 Q16 150 24 300 M46 0 Q38 150 44 300 M300 0 Q304 150 296 300 M274 0 Q282 150 276 300" stroke="#B5303F" stroke-width="3" fill="none"/>
+        <path d="M0 0 H320 V24 Q300 40 280 24 Q260 40 240 24 Q220 40 200 24 Q180 40 160 24 Q140 40 120 24 Q100 40 80 24 Q60 40 40 24 Q20 40 0 24Z" fill="#FFC93C"/>
+        <ellipse cx="160" cy="292" rx="140" ry="22" fill="#3B2C82"/>
+      </svg>
+      <div style="position:absolute;top:34px;left:0;right:0;text-align:center;color:#fff">
+        <div class="t-label" style="color:#FFC93C">QUIZ SHOW</div>
+        <div class="t-display" style="color:#fff">Binhi's Quiz Time</div>
+      </div>
+      <div class="bob" style="position:absolute;left:58px;top:132px">${binhi(64)}</div>
+      <div style="position:absolute;left:118px;top:120px;right:22px">
+        <div class="pulse" style="background:linear-gradient(#7BE07F,#4CC35A);border-radius:50%;width:150px;height:150px;margin-left:16px;display:grid;place-items:center;text-align:center;color:#fff;box-shadow:0 7px 0 #2E9142, 0 0 30px #A6E58A88;border:4px solid #fff">
+          <div><div style="font-size:26px;font-weight:700;line-height:1">PLAY</div><div style="font-size:14px;font-weight:600">Sprout Quiz</div><div style="font-size:12px;opacity:.9">5 questions</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="pad" style="display:grid;gap:12px">
+      <div style="position:relative;background:var(--sun);border-radius:14px;padding:12px 14px 12px 18px;box-shadow:0 4px 0 var(--sunDark)">
+        <div style="position:absolute;left:-8px;top:50%;width:16px;height:16px;border-radius:50%;background:var(--bg);transform:translateY(-50%)"></div>
+        <div style="position:absolute;right:-8px;top:50%;width:16px;height:16px;border-radius:50%;background:var(--bg);transform:translateY(-50%)"></div>
+        <div class="t-label">BONUS ROUND</div>
+        <div class="t-head">3 tricky questions · 2 plants to check on</div>
+        <div class="t-small" style="color:#6b5200">+1 leaf for each one you get right</div>
+      </div>
+      <div class="card row" style="background:var(--grapeTint);border-color:#D9CCFF"><div style="flex:1"><div class="t-label" style="color:var(--grapeDark)">CHALLENGE</div><div class="t-head">Sapling Quiz</div><div class="t-small">10 questions · Grades 5–6</div></div><div class="chip" style="background:#fff;color:var(--grapeDark)">Best 6/10</div></div>
+      <div class="card row"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="14" cy="20" r="11" fill="#FFC93C"/><circle cx="26" cy="20" r="11" fill="#FF7A59" opacity=".9"/></svg><div style="flex:1"><div class="t-head">Match it</div><div class="t-small">What is each plant known for?</div></div><span class="chip">+12</span></div>
+      <div class="t-title">Contestants</div>
+      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px">
+        ${quizzes.map(q => `<div style="flex:none;width:96px;background:#fff;border:2px solid var(--border);border-bottom-width:4px;border-radius:16px;padding:8px 4px;text-align:center"><div style="width:58px;height:58px;margin:0 auto;border-radius:50%;background:${q.score ? 'var(--leafTint)' : 'var(--sunTint)'};display:grid;place-items:center">${plant(q.id, 44)}</div><div style="font-size:12.5px;font-weight:600;margin-top:4px">${q.name}</div><div class="chip" style="margin-top:3px;${q.score ? '' : 'background:var(--sunTint);color:#8a6200'}">${scoreText(q)}</div></div>`).join('')}
+      </div>
+      <div class="t-small">${lock()} 9 more contestants join as you explore.</div>
+    </div></div>${nav}`,
+});
+
+// ---------------------------------------------------------------- B
+designs.push({
+  name: 'Big bright tiles', line: 'A neat grid of big buttons, easy to read at a glance. Plant quizzes slide sideways.',
+  html: () => `<div class="scroll"><div class="pad">
+    <div class="row" style="margin-bottom:12px"><div style="flex:1"><div class="t-display">Quiz</div><div class="t-small">Answer questions, earn leaves!</div></div><div class="card" style="padding:6px 10px;text-align:center;border-radius:14px"><div class="t-label" style="color:var(--muted)">BEST</div><div class="t-head">4/5</div></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;gap:10px">
+      <div style="grid-row:span 2;background:linear-gradient(160deg,#7BE07F,#4CC35A);border-radius:22px;padding:14px;color:#fff;box-shadow:0 5px 0 var(--leafDark);display:flex;flex-direction:column">
+        <div class="t-label" style="color:#E6F8DD">YOUR LEVEL</div><div class="t-title" style="color:#fff">Sprout Quiz</div><div style="font-size:12.5px">5 questions</div>
+        <div class="bob" style="margin:auto auto 6px">${binhi(70)}</div>
+        <div style="background:#fff;color:var(--leafDark);border-radius:12px;text-align:center;font-weight:700;padding:7px">PLAY</div>
+      </div>
+      <div style="background:var(--sky);border-radius:22px;padding:12px;box-shadow:0 5px 0 var(--skyDark)">
+        <div class="t-label">REVIEW</div><div class="t-head">5 waiting</div><div style="font-size:12px">3 tricky · 2 plants</div>
+        <svg width="40" height="34" viewBox="0 0 40 34" style="display:block;margin:6px 0 0 auto"><path d="M6 20 a14 14 0 1 1 6 10" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M2 14 L6 22 L13 17" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div style="background:var(--grape);border-radius:22px;padding:12px;color:#fff;box-shadow:0 5px 0 var(--grapeDark)">
+        <div class="t-label" style="color:#EFEAFF">CHALLENGE</div><div class="t-head">Sapling</div><div style="font-size:12px">10 questions</div><div style="font-size:12px;margin-top:6px;opacity:.9">Best 6/10</div>
+      </div>
+      <div style="grid-column:span 2;background:var(--sun);border-radius:22px;padding:12px 14px;box-shadow:0 5px 0 var(--sunDark)" class="row">
+        <svg width="44" height="40" viewBox="0 0 40 40"><circle cx="14" cy="20" r="11" fill="#fff" opacity=".9"/><circle cx="26" cy="20" r="11" fill="#FF7A59"/></svg>
+        <div style="flex:1"><div class="t-head">Match it</div><div style="font-size:12.5px">What is each plant known for?</div></div><span class="chip" style="background:#fff">+12</span>
+      </div>
+    </div>
+    <div class="row" style="margin:18px 0 8px"><div class="t-title" style="flex:1">Plant quizzes</div><div class="t-small">3 of 6 done</div></div>
+    <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin:0 -16px;padding-left:16px">
+      ${quizzes.map(q => { const f = q.score ? q.score[0] / q.score[1] : 0; return `<div style="flex:none;width:104px;background:#fff;border:2px solid var(--border);border-bottom-width:4px;border-radius:18px;padding:8px;text-align:center">
+        <svg width="70" height="70" viewBox="0 0 70 70" style="display:block;margin:0 auto"><circle cx="35" cy="35" r="30" fill="${q.score ? '#F2FBEF' : '#FFF8E2'}" stroke="#EDE6D6" stroke-width="5"/>${q.score ? `<circle cx="35" cy="35" r="30" fill="none" stroke="#4CC35A" stroke-width="5" stroke-linecap="round" stroke-dasharray="${f * 188} 188" transform="rotate(-90 35 35)"/>` : ''}<g transform="translate(15 13)">${plant(q.id, 40)}</g></svg>
+        <div style="font-size:13px;font-weight:600">${q.name}</div><div class="t-small" style="color:${q.score ? 'var(--leafDark)' : '#B07F00'};font-weight:700">${scoreText(q)}</div></div>`; }).join('')}
+    </div>
+    <div class="t-small">${lock()} 9 more unlock as you explore.</div>
+  </div></div>${nav}`,
+});
+
+// ---------------------------------------------------------------- C
+designs.push({
+  name: 'Quest board', line: 'A wooden board with cards pinned on it. Review is today\'s quest on a sticky note; finished quizzes get a DONE stamp.',
+  html: () => `<div class="scroll" style="background:#C9955B;background-image:radial-gradient(#B98348 1.2px, transparent 1.4px);background-size:9px 9px">
+    <div class="pad">
+      <div style="background:#8A5A2B;color:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 4px 0 #5B3A1E;display:inline-block;transform:rotate(-1.5deg)"><div class="t-display" style="font-size:26px">Quest board</div></div>
+      <div style="display:grid;gap:14px;margin-top:16px">
+        ${pinned(`<div style="background:#FFF59A;padding:12px;transform:rotate(1.5deg);box-shadow:0 4px 8px #0003"><div class="t-label" style="color:#8a6200">TODAY'S QUEST</div><div class="t-head">Review 5 questions</div><div class="t-small" style="color:#6b5200">3 tricky ones + 2 plants to check on · +1 leaf each</div></div>`, '#FF5C7A')}
+        ${pinned(`<div class="card row" style="transform:rotate(-1deg);border-radius:10px;box-shadow:0 4px 8px #0003">${binhi(46)}<div style="flex:1"><div class="t-label" style="color:var(--leafDark)">YOUR LEVEL</div><div class="t-title">Sprout Quiz</div><div class="t-small">5 questions · best 4/5</div></div><div class="btn" style="padding:8px 12px;font-size:14px">GO</div></div>`, '#4CC35A')}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          ${pinned(`<div class="card" style="transform:rotate(1.5deg);border-radius:10px;background:var(--grapeTint);box-shadow:0 4px 8px #0003"><div class="t-label" style="color:var(--grapeDark)">CHALLENGE</div><div class="t-head">Sapling</div><div class="t-small">10 questions</div></div>`, '#8E6CFF')}
+          ${pinned(`<div class="card" style="transform:rotate(-2deg);border-radius:10px;background:var(--sunTint);box-shadow:0 4px 8px #0003"><div class="t-label" style="color:#8a6200">GAME</div><div class="t-head">Match it</div><div class="t-small">+12 leaves left</div></div>`, '#6EC6FF')}
+        </div>
+        <div style="background:#8A5A2B;color:#fff;border-radius:10px;padding:5px 12px;justify-self:start;box-shadow:0 3px 0 #5B3A1E" class="t-head">Plant quizzes</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+          ${quizzes.map((q, i) => `<div style="position:relative;background:#fff;padding:6px 6px 8px;box-shadow:0 3px 6px #0003;transform:rotate(${[-3, 2, -1, 3, -2, 1][i]}deg)">
+            <div style="background:${q.score ? '#EAF7E4' : '#FFF6DA'};height:62px;display:grid;place-items:center">${plant(q.id, 46)}</div>
+            <div style="font-size:12px;font-weight:600;text-align:center;margin-top:4px">${q.name}</div>
+            ${q.score ? `<div style="position:absolute;right:-6px;top:30px;transform:rotate(-14deg);border:2.5px solid #2E9142;color:#2E9142;font-size:11px;font-weight:700;padding:0 5px;border-radius:6px;background:#ffffffcc">DONE ${q.score[0]}/${q.score[1]}</div>` : ''}
+          </div>`).join('')}
+        </div>
+        <div style="color:#fff;font-size:13px;font-weight:600">${lock()} 9 more quests appear as you explore.</div>
+      </div>
+    </div></div>${nav}`,
+});
+function pinned(inner, pin) {
+  return `<div style="position:relative">${inner}<div style="position:absolute;left:50%;top:-7px;width:14px;height:14px;border-radius:50%;background:${pin};box-shadow:inset -2px -2px 0 #0003, 0 2px 2px #0004;transform:translateX(-50%)"></div></div>`;
+}
+
+// ---------------------------------------------------------------- D
+designs.push({
+  name: 'School notebook', line: 'Lined paper and coloured tabs, like a real notebook. Scores look like a teacher\'s marks.',
+  html: () => `<div class="scroll" style="background:#FFFDF6;background-image:linear-gradient(transparent 27px, #CFE3F5 28px);background-size:100% 28px">
+    <div style="position:absolute;left:34px;top:0;bottom:0;width:2px;background:#F2A3A3"></div>
+    <div style="position:absolute;right:0;top:90px;display:grid;gap:6px">${[['Review', '#6EC6FF'], ['Levels', '#4CC35A'], ['Games', '#FFC93C'], ['Plants', '#FF8FB1']].map(([t, c]) => `<div style="background:${c};font-size:10.5px;font-weight:700;padding:6px 4px 6px 8px;border-radius:8px 0 0 8px;writing-mode:vertical-rl">${t}</div>`).join('')}</div>
+    <div style="padding:14px 34px 16px 46px;font-family:'Patrick Hand','Fredoka',cursive">
+      <div style="font-size:34px;line-height:56px">My Quiz Notebook</div>
+      <div style="font-size:19px;line-height:28px;color:#3B7DDD">To do:</div>
+      <div style="font-size:18px;line-height:28px">☐ Review 3 tricky questions</div>
+      <div style="font-size:18px;line-height:28px">☐ Check on Malunggay and Gumamela</div>
+      <div style="height:28px"></div>
+      <div style="font-size:22px;line-height:28px;text-decoration:underline wavy #4CC35A">Quizzes</div>
+      <div style="background:#fff;border:2px solid #E3D6BA;border-radius:12px;padding:8px 10px;margin:6px 0 10px;font-family:Fredoka" class="row">${binhi(40)}<div style="flex:1"><div class="t-label" style="color:var(--leafDark)">YOUR LEVEL</div><div class="t-head">Sprout Quiz</div><div class="t-small">5 questions</div></div><div style="width:40px;height:40px;border:2.5px solid #E0465A;border-radius:50%;color:#E0465A;display:grid;place-items:center;font-family:'Patrick Hand';font-size:18px;transform:rotate(-8deg)">4/5</div></div>
+      <div style="background:#fff;border:2px solid #E3D6BA;border-radius:12px;padding:8px 10px;margin-bottom:10px;font-family:Fredoka"><div class="t-label" style="color:var(--grapeDark)">CHALLENGE</div><div class="t-head">Sapling Quiz · 10 questions</div></div>
+      <div style="font-size:22px;line-height:28px;text-decoration:underline wavy #FFC93C">Games</div>
+      <div style="font-size:18px;line-height:28px">→ Match it <span style="color:#2E9142">(+12 leaves)</span></div>
+      <div style="height:28px"></div>
+      <div style="font-size:22px;line-height:28px;text-decoration:underline wavy #FF8FB1">Plant quizzes</div>
+      ${quizzes.map(q => `<div style="font-size:18px;line-height:28px;display:flex;align-items:center;gap:6px">${q.score ? `<span style="color:#2E9142;font-size:20px">☑</span>` : '<span>☐</span>'}<span style="flex:1">${q.name}</span>${q.score ? `<span style="color:#E0465A;border:2px solid #E0465A;border-radius:50%;padding:0 5px;font-size:14px;line-height:20px">${q.score[0]}/${q.score[1]}</span>` : '<span style="color:#B07F00;font-size:15px">new</span>'}</div>`).join('')}
+      <div style="font-size:16px;line-height:28px;color:#8a8fa8">${lock(14)} 9 more pages to fill as you explore</div>
+    </div></div>${nav}`,
+});
+
+// ---------------------------------------------------------------- E
+designs.push({
+  name: 'Stepping stones', line: 'A short trail of big stones to hop along: review, your level, challenge, then the plant quizzes.',
+  html: () => `<div class="scroll" style="background:linear-gradient(#DFF4FF 0, #EAF8DE 140px, #CDEFB8 100%)">
+    <div class="pad">
+      <div class="row"><div style="flex:1"><div class="t-display">Quiz trail</div><div class="t-small">Hop along and earn leaves!</div></div><span class="chip" style="font-size:13px">Best 4/5</span></div>
+      <svg width="308" height="1000" viewBox="0 0 308 1000" style="display:block;margin-top:6px">
+        <path d="M150 40 C40 120 260 210 150 300 C60 380 250 450 150 540 C70 610 240 690 150 770 C80 840 230 900 150 980" stroke="#F1E6CB" stroke-width="26" fill="none" stroke-linecap="round" stroke-dasharray="2 34"/>
+        ${stone(150, 60, 50, '#6EC6FF', 'REVIEW', '5 waiting', '3 tricky · 2 plants')}
+        ${stone(110, 200, 64, '#4CC35A', 'YOUR LEVEL', 'Sprout Quiz', '5 questions', true)}
+        ${stone(210, 330, 46, '#8E6CFF', 'CHALLENGE', 'Sapling', '10 questions')}
+        ${stone(110, 440, 46, '#FFC93C', 'GAME', 'Match it', '+12 leaves')}
+        ${quizzes.map((q, i) => { const x = [200, 100, 200, 100, 200, 100][i], y = 560 + i * 72; return `<g><ellipse cx="${x}" cy="${y + 26}" rx="34" ry="8" fill="#0001"/><ellipse cx="${x}" cy="${y}" rx="34" ry="26" fill="${q.score ? '#E6F8DD' : '#fff'}" stroke="#C9BFA8" stroke-width="2.5"/><g transform="translate(${x - 18} ${y - 22})">${plant(q.id, 36)}</g><text x="${x < 150 ? x + 44 : x - 44}" y="${y - 2}" text-anchor="${x < 150 ? 'start' : 'end'}" font-family="Fredoka" font-size="14" font-weight="600" fill="#263046">${q.name}</text><text x="${x < 150 ? x + 44 : x - 44}" y="${y + 15}" text-anchor="${x < 150 ? 'start' : 'end'}" font-family="Fredoka" font-size="12" font-weight="700" fill="${q.score ? '#2E9142' : '#B07F00'}">${scoreText(q)}</text></g>`; }).join('')}
+      </svg>
+      <div class="t-small" style="margin-top:-14px">${lock()} 9 more stones appear as you explore.</div>
+    </div>
+    <div class="bob" style="position:absolute;left:100px;top:176px">${binhi(50)}</div>
+    </div>${nav}`,
+});
+function stone(x, y, r, c, tag, title, sub, big) {
+  const left = x > 150;
+  return `<g><ellipse cx="${x}" cy="${y + r * 0.75}" rx="${r}" ry="${r * 0.2}" fill="#0001"/>
+    <ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * 0.78}" fill="${c}" stroke="#263046" stroke-opacity=".25" stroke-width="3"/>
+    <ellipse cx="${x - r * 0.3}" cy="${y - r * 0.35}" rx="${r * 0.35}" ry="${r * 0.15}" fill="#fff" opacity=".4"/>
+    <text x="${x}" y="${y + 6}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="${big ? 18 : 14}" fill="#fff">${big ? 'PLAY' : 'GO'}</text>
+    <text x="${left ? x - r - 10 : x + r + 10}" y="${y - 12}" text-anchor="${left ? 'end' : 'start'}" font-family="Fredoka" font-size="10.5" font-weight="700" letter-spacing="1" fill="#6E7191">${tag}</text>
+    <text x="${left ? x - r - 10 : x + r + 10}" y="${y + 6}" text-anchor="${left ? 'end' : 'start'}" font-family="Fredoka" font-size="${big ? 19 : 16}" font-weight="700" fill="#263046">${title}</text>
+    <text x="${left ? x - r - 10 : x + r + 10}" y="${y + 23}" text-anchor="${left ? 'end' : 'start'}" font-family="Fredoka" font-size="12" font-weight="500" fill="#6E7191">${sub}</text></g>`;
+}
+
+// ---------------------------------------------------------------- F
+designs.push({
+  name: 'Binhi\'s classroom', line: 'A chalkboard where Binhi the teacher says what\'s next. Plant quizzes are flash cards.',
+  html: () => `<div class="scroll">
+    <div style="background:#C9955B;padding:12px 12px 0">
+      <div style="background:#2F5D46;border:8px solid #8A5A2B;border-radius:10px;padding:14px;color:#F4F7EF;position:relative;min-height:170px;box-shadow:inset 0 0 30px #0004">
+        <div style="font-family:'Patrick Hand',cursive;font-size:30px;line-height:1">Quiz time!</div>
+        <div style="font-family:'Patrick Hand',cursive;font-size:18px;opacity:.9;margin-top:6px;max-width:170px">Today: 3 tricky questions and 2 plants to check on.</div>
+        <div style="display:inline-block;margin-top:10px;background:#F4F7EF;color:#2F5D46;border-radius:10px;padding:6px 12px;font-weight:700;font-size:14px">START REVIEW</div>
+        <div class="bob" style="position:absolute;right:14px;bottom:8px">${binhi(70)}</div>
+        <svg width="40" height="10" style="position:absolute;left:14px;bottom:-14px"><rect width="26" height="6" rx="2" fill="#fff"/></svg>
+      </div>
+      <div style="height:12px;background:#8A5A2B;margin:0 -12px;border-radius:0"></div>
+    </div>
+    <div class="pad" style="display:grid;gap:12px">
+      <div class="t-title">Pick a book</div>
+      <div style="display:flex;gap:10px;align-items:flex-end">
+        <div style="flex:1.3;background:#4CC35A;border-radius:6px 14px 14px 6px;padding:12px 12px 12px 18px;color:#fff;box-shadow:inset 8px 0 0 #2E9142, 0 4px 0 #2E9142;min-height:132px;display:flex;flex-direction:column">
+          <div class="t-label" style="color:#E6F8DD">YOUR LEVEL</div><div class="t-title" style="color:#fff">Sprout Quiz</div><div style="font-size:12.5px">5 questions · best 4/5</div>
+          <div style="margin-top:auto;background:#fff;color:var(--leafDark);text-align:center;border-radius:10px;font-weight:700;padding:5px">OPEN</div>
+        </div>
+        <div style="flex:1;background:#8E6CFF;border-radius:6px 14px 14px 6px;padding:12px 10px 12px 16px;color:#fff;box-shadow:inset 7px 0 0 #6B4FD8, 0 4px 0 #6B4FD8;min-height:108px">
+          <div class="t-label" style="color:#EFEAFF">CHALLENGE</div><div class="t-head" style="color:#fff">Sapling</div><div style="font-size:12px">10 questions</div>
+        </div>
+      </div>
+      <div class="card row" style="background:var(--sunTint);border-color:#F5DC8C"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="14" cy="20" r="11" fill="#FFC93C"/><circle cx="26" cy="20" r="11" fill="#FF7A59" opacity=".9"/></svg><div style="flex:1"><div class="t-head">Match it</div><div class="t-small">Class game: what is each plant known for?</div></div><span class="chip">+12</span></div>
+      <div class="t-title">Flash cards</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        ${quizzes.map(q => `<div style="background:#fff;border:2px solid var(--border);border-bottom-width:4px;border-radius:12px;overflow:hidden;text-align:center">
+          <div style="height:6px;background:${q.score ? '#4CC35A' : '#FFC93C'}"></div>
+          <div style="padding:6px 4px">${plant(q.id, 44)}<div style="font-size:12px;font-weight:600">${q.name}</div><div style="font-size:11.5px;font-weight:700;color:${q.score ? 'var(--leafDark)' : '#B07F00'}">${q.score ? tick(12) + ' ' + scoreText(q) : 'New!'}</div></div></div>`).join('')}
+      </div>
+      <div class="t-small">${lock()} 9 more flash cards come as you explore.</div>
+    </div></div>${nav}`,
+});
+
+// ---------------------------------------------------------------- G
+designs.push({
+  name: 'Next up + simple lists', line: 'Calm and clear: one big "Next up" card picks the best thing to do, then short tidy lists.',
+  html: () => `<div class="scroll"><div class="pad">
+    <div class="t-display">Quiz</div><div class="t-small" style="margin-bottom:12px">Answer questions, earn leaves!</div>
+    <div style="background:linear-gradient(150deg,#8FD3FF,#6EC6FF);border-radius:24px;padding:16px;box-shadow:0 5px 0 var(--skyDark);position:relative;overflow:hidden">
+      <div class="t-label">NEXT UP</div>
+      <div class="t-title" style="font-size:22px;max-width:190px">Review 5 questions</div>
+      <div style="font-size:13px;max-width:190px">3 you missed and 2 plants you haven't seen in a while</div>
+      <div class="btn" style="margin-top:12px;max-width:170px;background:#fff;color:var(--skyDark);box-shadow:0 4px 0 #2F8BC4">START</div>
+      <div class="bob" style="position:absolute;right:14px;bottom:12px">${binhi(76)}</div>
+    </div>
+    <div class="t-label" style="color:var(--muted);margin:18px 0 6px">LEVEL QUIZZES</div>
+    <div style="background:#fff;border:2px solid var(--border);border-radius:18px;overflow:hidden">
+      ${[['Sprout Quiz', '5 questions · your level', 'Best 4/5', '#4CC35A'], ['Sapling Quiz', '10 questions · challenge', 'Best 6/10', '#8E6CFF']].map(([t, s, b, c], i) => `<div class="row" style="padding:11px 12px;${i ? 'border-top:2px solid var(--border)' : ''}"><div style="width:36px;height:36px;border-radius:12px;background:${c}"></div><div style="flex:1"><div class="t-head">${t}</div><div class="t-small">${s}</div></div><span class="chip" style="background:#F4F1EA;color:var(--text)">${b}</span><span style="font-size:20px;color:var(--muted)">›</span></div>`).join('')}
+    </div>
+    <div class="t-label" style="color:var(--muted);margin:18px 0 6px">GAMES</div>
+    <div class="row" style="background:#fff;border:2px solid var(--border);border-radius:18px;padding:11px 12px"><svg width="36" height="36" viewBox="0 0 40 40"><circle cx="14" cy="20" r="11" fill="#FFC93C"/><circle cx="26" cy="20" r="11" fill="#FF7A59" opacity=".9"/></svg><div style="flex:1"><div class="t-head">Match it</div><div class="t-small">What is each plant known for?</div></div><span class="chip">+12</span><span style="font-size:20px;color:var(--muted)">›</span></div>
+    <div class="t-label" style="color:var(--muted);margin:18px 0 6px">PLANT QUIZZES · 3 OF 6 DONE</div>
+    <div style="background:#fff;border:2px solid var(--border);border-radius:18px;overflow:hidden">
+      ${quizzes.map((q, i) => `<div class="row" style="padding:7px 12px;${i ? 'border-top:2px solid var(--border)' : ''}">${plant(q.id, 34)}<div style="flex:1" class="t-head">${q.name}</div>${q.score ? `${tick()}<span class="t-small" style="color:var(--leafDark);font-weight:700">${scoreText(q)}</span>` : '<span class="chip" style="background:var(--sunTint);color:#8a6200">New</span>'}</div>`).join('')}
+    </div>
+    <div class="t-small" style="margin-top:8px">${lock()} 9 more unlock as you explore.</div>
+  </div></div>${nav}`,
+});
+
+// ---------------------------------------------------------------- H
+designs.push({
+  name: 'Jeepney ride', line: 'Binhi drives a jeepney to each quiz stop. Very Filipino; the route signs show what\'s at each stop.',
+  html: () => `<div class="scroll" style="background:#EAF8DE">
+    <div style="background:linear-gradient(#9FDcFF,#DFF4FF);padding:14px 16px 0;position:relative;height:210px;overflow:hidden">
+      <div class="t-display">Quiz route</div><div class="t-small">Hop on! Every stop has a quiz.</div>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:46px;background:#7C8796"></div>
+      <div style="position:absolute;left:0;right:0;bottom:20px;height:5px;background:repeating-linear-gradient(90deg,#fff 0 22px,transparent 22px 40px)"></div>
+      <svg class="bob" width="190" height="104" viewBox="0 0 190 104" style="position:absolute;left:62px;bottom:22px">
+        <path d="M18 74 V40 Q18 26 32 24 H128 Q144 24 150 36 L164 58 Q170 60 170 66 V74 Z" fill="#FFC93C" stroke="#5B3A1E" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M22 24 Q90 2 146 24" fill="#E0465A" stroke="#5B3A1E" stroke-width="3"/>
+        <rect x="56" y="10" width="64" height="14" rx="4" fill="#fff" stroke="#5B3A1E" stroke-width="2"/><text x="88" y="21" text-anchor="middle" font-family="Fredoka" font-size="9.5" font-weight="700" fill="#E0465A">QUIZ STOPS</text>
+        ${[30, 58, 86, 114].map(x => `<rect x="${x}" y="34" width="22" height="18" rx="3" fill="#BFE9FF" stroke="#5B3A1E" stroke-width="2"/>`).join('')}
+        <path d="M140 34 L150 52 H130 V34Z" fill="#BFE9FF" stroke="#5B3A1E" stroke-width="2"/>
+        <path d="M18 60 H170" stroke="#4FA8D8" stroke-width="4"/><path d="M18 66 H170" stroke="#E0465A" stroke-width="3"/>
+        <g transform="translate(118 30) scale(.55)">${binhi(40).replace('<svg', '<svg x="0" y="0"')}</g>
+        ${[44, 142].map(x => `<circle cx="${x}" cy="78" r="13" fill="#263046"/><circle cx="${x}" cy="78" r="5" fill="#C9CED8"/>`).join('')}
+        <circle cx="168" cy="62" r="4" fill="#FFF59A" stroke="#5B3A1E" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div class="pad" style="position:relative">
+      <div style="position:absolute;left:34px;top:0;bottom:30px;width:8px;background:#7C8796;border-radius:4px"></div>
+      ${[['NEXT STOP', 'Review', '3 tricky · 2 plants', '#6EC6FF'], ['YOUR LEVEL', 'Sprout Quiz', '5 questions · best 4/5', '#4CC35A'], ['CHALLENGE', 'Sapling Quiz', '10 questions', '#8E6CFF'], ['GAME', 'Match it', '+12 leaves left', '#FFC93C']].map(([tag, t, s, c]) => `<div class="row" style="margin-bottom:12px;position:relative">
+        <div style="width:44px;display:grid;place-items:center"><div style="width:22px;height:22px;border-radius:50%;background:${c};border:4px solid #fff;box-shadow:0 0 0 2px #7C8796"></div></div>
+        <div class="card" style="flex:1;padding:10px 12px;border-left:6px solid ${c}"><div class="t-label" style="color:var(--muted)">${tag}</div><div class="t-head">${t}</div><div class="t-small">${s}</div></div></div>`).join('')}
+      <div class="t-title" style="margin:6px 0 8px 52px">Plant stops</div>
+      <div style="margin-left:52px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${quizzes.map(q => `<div style="background:#fff;border:2px solid var(--border);border-radius:12px;padding:6px" class="row">${plant(q.id, 30)}<div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600">${q.name}</div><div style="font-size:11px;font-weight:700;color:${q.score ? 'var(--leafDark)' : '#B07F00'}">${scoreText(q)}</div></div></div>`).join('')}
+      </div>
+      <div class="t-small" style="margin:10px 0 0 52px">${lock()} 9 more stops open as you explore.</div>
+    </div></div>${nav}`,
+});
+
+// ---------------------------------------------------------------- I
+designs.push({
+  name: 'Quiz garden beds', line: 'Each plant quiz is a little seed bed. Do the quiz and the plant grows bigger; a perfect score makes it bloom.',
+  html: () => `<div class="scroll" style="background:#EAF8DE"><div class="pad">
+    <div class="row"><div style="flex:1"><div class="t-display">Quiz garden</div><div class="t-small">Answer right and your quizzes grow!</div></div></div>
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:10px;margin-top:12px">
+      <div style="background:#fff;border:2px solid var(--border);border-bottom-width:5px;border-radius:20px;padding:12px;text-align:center">
+        <div class="t-label" style="color:var(--leafDark)">YOUR LEVEL</div><div class="t-title">Sprout Quiz</div><div class="t-small">5 questions</div>
+        <svg width="90" height="60" viewBox="0 0 90 60"><path d="M18 30 L62 30 L56 56 L24 56Z" fill="#E07A4E" stroke="#B5522B" stroke-width="2.5"/><path d="M45 30 V12" stroke="#2E9142" stroke-width="3"/><ellipse cx="38" cy="16" rx="8" ry="4" fill="#4CC35A"/><ellipse cx="53" cy="13" rx="8" ry="4" fill="#4CC35A"/><path d="M62 24 L74 12 L84 16 L78 26 Q70 30 62 24Z" fill="#6EC6FF" stroke="#3BA4E6" stroke-width="2"/><path d="M66 30 l-2 6 M70 30 l-1 7 M74 28 l0 7" stroke="#6EC6FF" stroke-width="2" stroke-linecap="round"/></svg>
+        <div class="btn" style="padding:8px">WATER IT</div>
+      </div>
+      <div style="display:grid;gap:10px">
+        <div style="background:var(--skyTint);border:2px solid #BFE6FF;border-bottom-width:5px;border-radius:18px;padding:10px"><div class="t-label" style="color:var(--skyDark)">REVIEW</div><div class="t-head">5 thirsty</div><div class="t-small">plants need you</div></div>
+        <div style="background:var(--grapeTint);border:2px solid #D9CCFF;border-bottom-width:5px;border-radius:18px;padding:10px"><div class="t-label" style="color:var(--grapeDark)">CHALLENGE</div><div class="t-head">Sapling</div><div class="t-small">10 questions</div></div>
+      </div>
+    </div>
+    <div class="card row" style="margin-top:10px"><svg width="36" height="36" viewBox="0 0 40 40"><circle cx="14" cy="20" r="11" fill="#FFC93C"/><circle cx="26" cy="20" r="11" fill="#FF7A59" opacity=".9"/></svg><div style="flex:1"><div class="t-head">Match it</div><div class="t-small">What is each plant known for?</div></div><span class="chip">+12</span></div>
+    <div class="t-title" style="margin:16px 0 8px">Plant beds</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      ${quizzes.map(q => { const grow = q.score ? 0.6 + 0.4 * q.score[0] / q.score[1] : 0.35; return `<div style="text-align:center">
+        <div style="height:70px;display:flex;align-items:flex-end;justify-content:center"><div style="transform:scale(${grow});transform-origin:50% 100%">${plant(q.id, 60)}</div></div>
+        <div style="height:16px;background:#8A5A2B;border-radius:8px 8px 4px 4px;border:2px solid #5B3A1E;margin-top:-6px"></div>
+        <div style="font-size:12px;font-weight:600;margin-top:3px">${q.name}</div><div style="font-size:11px;font-weight:700;color:${q.score ? 'var(--leafDark)' : '#B07F00'}">${q.score ? (q.score[0] === q.score[1] ? 'In bloom! ' : '') + scoreText(q) : 'Plant it!'}</div></div>`; }).join('')}
+    </div>
+    <div class="t-small" style="margin-top:10px">${lock()} 9 empty beds wait for new plants.</div>
+  </div></div>${nav}`,
+});
+
+// ---------------------------------------------------------------- J
+designs.push({
+  name: 'Sticker collection', line: 'Plant quizzes are spaces in an album; finish a quiz and its sticker pops in. Levels are big "packs".',
+  html: () => `<div class="scroll" style="background:#FFF4F7"><div class="pad">
+    <div class="t-display">Quiz album</div><div class="t-small">Finish quizzes to fill your album!</div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      ${[['Sprout', 'YOUR LEVEL', '5 questions', '#4CC35A', '#2E9142', 1.04], ['Sapling', 'CHALLENGE', '10 questions', '#8E6CFF', '#6B4FD8', 0.96]].map(([t, tag, s, c, d, k]) => `<div style="flex:${k};background:${c};border-radius:14px;padding:12px;color:#fff;box-shadow:0 5px 0 ${d};position:relative;overflow:hidden;clip-path:polygon(0 6px,6% 0,12% 6px,18% 0,24% 6px,30% 0,36% 6px,42% 0,48% 6px,54% 0,60% 6px,66% 0,72% 6px,78% 0,84% 6px,90% 0,96% 6px,100% 0,100% 100%,0 100%)">
+        <div class="t-label" style="opacity:.9">${tag}</div><div class="t-title" style="color:#fff">${t}</div><div style="font-size:12px">${s}</div><div style="margin-top:10px;background:#fff;color:${d};text-align:center;border-radius:10px;font-weight:700;padding:5px">OPEN PACK</div></div>`).join('')}
+    </div>
+    <div class="card row" style="margin-top:12px;background:var(--skyTint);border-color:#BFE6FF"><div style="flex:1"><div class="t-label" style="color:var(--skyDark)">REVIEW</div><div class="t-head">5 questions to try again</div></div><div class="btn" style="padding:7px 12px;font-size:14px;background:var(--sky);box-shadow:0 3px 0 var(--skyDark)">GO</div></div>
+    <div class="card row" style="margin-top:10px"><svg width="36" height="36" viewBox="0 0 40 40"><circle cx="14" cy="20" r="11" fill="#FFC93C"/><circle cx="26" cy="20" r="11" fill="#FF7A59" opacity=".9"/></svg><div style="flex:1"><div class="t-head">Match it</div><div class="t-small">What is each plant known for?</div></div><span class="chip">+12</span></div>
+    <div style="background:#fff;border:2px solid #F5CCD8;border-radius:18px;padding:12px;margin-top:14px">
+      <div class="row" style="margin-bottom:8px"><div class="t-title" style="flex:1">Backyard page</div><div class="t-small">3 / 5</div></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        ${quizzes.slice(0, 5).map(q => q.score ? `<div style="text-align:center"><div style="width:78px;height:78px;margin:0 auto;border-radius:50%;background:#fff;box-shadow:0 0 0 4px #fff, 0 0 0 6px #F5CCD8, 0 4px 0 6px #F5CCD8;display:grid;place-items:center;transform:rotate(${q.id.length % 2 ? -6 : 5}deg)">${plant(q.id, 54)}</div><div style="font-size:12px;font-weight:600;margin-top:6px">${q.name}</div><div style="font-size:11px;font-weight:700;color:var(--leafDark)">${scoreText(q)}</div></div>`
+          : `<div style="text-align:center"><div style="width:78px;height:78px;margin:0 auto;border-radius:50%;border:3px dashed #F5CCD8;display:grid;place-items:center;opacity:.55;filter:grayscale(1)">${plant(q.id, 46)}</div><div style="font-size:12px;font-weight:600;margin-top:6px">${q.name}</div><div style="font-size:11px;font-weight:700;color:#C2577A">Do the quiz</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="t-small" style="margin-top:10px">${lock()} 2 more album pages unlock as you explore.</div>
+  </div></div>${nav}`,
+});
+
+// ---------------------------------------------------------------- K
+designs.push({
+  name: 'Arcade machine', line: 'A retro arcade cabinet: the screen shows your level, the big buttons pick a mode. Plant quizzes are game cartridges.',
+  html: () => `<div class="scroll" style="background:#2B2550"><div class="pad">
+    <div style="background:#E0465A;border-radius:22px 22px 10px 10px;padding:10px;box-shadow:0 6px 0 #9E2A3A">
+      <div style="text-align:center;font-weight:700;color:#FFC93C;letter-spacing:2px;font-size:15px;text-shadow:0 2px 0 #9E2A3A">PLANT QUIZ ARCADE</div>
+      <div style="background:#123;border:6px solid #263046;border-radius:14px;margin-top:8px;padding:14px;color:#A6E58A;text-align:center;font-family:monospace;position:relative;overflow:hidden;background-image:repeating-linear-gradient(transparent 0 3px,#ffffff08 3px 4px)">
+        <div style="font-size:12px;color:#6EC6FF">YOUR LEVEL</div>
+        <div style="font-size:22px;font-weight:700;margin:4px 0">SPROUT QUIZ</div>
+        <div style="font-size:12px">5 QUESTIONS · BEST 4/5</div>
+        <div class="pulse" style="margin-top:10px;font-size:14px;color:#FFC93C">PRESS PLAY</div>
+        <div class="bob" style="position:absolute;right:8px;bottom:4px;opacity:.95">${binhi(40)}</div>
+      </div>
+      <div class="row" style="justify-content:space-around;margin-top:12px">
+        ${[['PLAY', '#4CC35A', '#2E9142'], ['REVIEW', '#6EC6FF', '#3BA4E6'], ['HARD', '#8E6CFF', '#6B4FD8'], ['MATCH', '#FFC93C', '#F2A100']].map(([t, c, d]) => `<div style="text-align:center"><div style="width:50px;height:50px;border-radius:50%;background:${c};box-shadow:0 5px 0 ${d}, inset 0 -6px 0 #0002;margin:0 auto"></div><div style="font-size:11px;font-weight:700;color:#fff;margin-top:7px">${t}</div></div>`).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;font-size:11px;color:#FFE3E8">
+        <div>REVIEW: 5 waiting</div><div style="text-align:right">HARD: Sapling, 10 q</div><div>MATCH: +12 leaves</div>
+      </div>
+    </div>
+    <div style="color:#fff;font-weight:700;font-size:18px;margin:16px 0 8px">Game cartridges</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      ${quizzes.map((q, i) => `<div style="background:${['#FF8FB1', '#FF7A59', '#8E6CFF', '#FFC93C', '#4CC35A', '#6EC6FF'][i]};border-radius:8px 8px 4px 4px;padding:6px 6px 0;box-shadow:0 4px 0 #0004">
+        <div style="background:#fff;border-radius:4px;padding:4px;text-align:center">${plant(q.id, 40)}<div style="font-size:11.5px;font-weight:600">${q.name}</div></div>
+        <div style="text-align:center;font-size:11px;font-weight:700;color:#fff;padding:3px 0">${q.score ? 'HI ' + scoreText(q) : 'NEW'}</div>
+        <div style="height:8px;background:repeating-linear-gradient(90deg,#0003 0 3px,transparent 3px 6px);margin:0 6px"></div></div>`).join('')}
+    </div>
+    <div style="color:#C9C3F0;font-size:12.5px;margin-top:10px">${lock()} 9 more cartridges unlock as you explore.</div>
+  </div></div>${nav}`,
+});
+
+// ---------------------------------------------------------------- L
+designs.push({
+  name: 'Balloon fair', line: 'Floating balloons at a fiesta: tap one to start. Your level is the biggest balloon; finished plant quizzes carry a ribbon with the score.',
+  html: () => `<div class="scroll" style="background:linear-gradient(#BFE9FF, #FFF4E0 70%)">
+    <div class="pad" style="position:relative">
+      <div class="t-display">Quiz fiesta</div><div class="t-small">Pick a balloon!</div>
+      <svg width="308" height="360" viewBox="0 0 308 360" style="display:block">
+        <path d="M0 24 Q77 54 154 24 T308 24" stroke="#8A5A2B" stroke-width="1.5" fill="none"/>
+        ${[[20, 36, '#FF5C7A'], [60, 46, '#FFC93C'], [100, 48, '#6EC6FF'], [140, 38, '#4CC35A'], [180, 30, '#8E6CFF'], [220, 36, '#FF9F43'], [260, 44, '#FF8FB1'], [296, 38, '#6EC6FF']].map(([x, y, c]) => `<path d="M${x - 6} ${y} L${x + 6} ${y} L${x} ${y + 12}Z" fill="${c}"/>`).join('')}
+        ${balloon(150, 150, 66, '#4CC35A', 'YOUR LEVEL', 'Sprout', '5 questions', true)}
+        ${balloon(54, 110, 40, '#6EC6FF', 'REVIEW', '5 waiting', '')}
+        ${balloon(258, 104, 40, '#8E6CFF', 'CHALLENGE', 'Sapling', '')}
+        ${balloon(256, 250, 34, '#FFC93C', 'GAME', 'Match it', '')}
+        <g class="bob" transform="translate(30 270)">${binhi(56).replace('<svg', '<svg x="0" y="0"')}</g>
+      </svg>
+      <div class="t-title" style="margin:2px 0 8px">Plant balloons</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        ${quizzes.map((q, i) => `<div style="text-align:center"><svg width="72" height="92" viewBox="0 0 72 92"><path d="M36 66 Q30 78 38 92" stroke="#8A5A2B" stroke-width="1.4" fill="none"/><ellipse cx="36" cy="34" rx="30" ry="33" fill="${['#FFE3EA', '#FFD9D0', '#F1E8FF', '#FFF1C7', '#E6F8DD', '#E5F5FF'][i]}" stroke="${q.score ? '#2E9142' : '#E3D6BA'}" stroke-width="2.5"/><path d="M32 66 L40 66 L36 72Z" fill="#E3D6BA"/><g transform="translate(16 12)">${plant(q.id, 40)}</g>${q.score ? `<rect x="10" y="56" width="52" height="16" rx="8" fill="#4CC35A"/><text x="36" y="68" text-anchor="middle" font-family="Fredoka" font-size="11" font-weight="700" fill="#fff">${scoreText(q)}</text>` : ''}</svg><div style="font-size:12px;font-weight:600;margin-top:-6px">${q.name}</div></div>`).join('')}
+      </div>
+      <div class="t-small" style="margin-top:8px">${lock()} 9 more balloons float in as you explore.</div>
+    </div></div>${nav}`,
+});
+function balloon(x, y, r, c, tag, title, sub, big) {
+  return `<g><path d="M${x} ${y + r * 1.05} Q${x - 8} ${y + r * 1.5} ${x + 4} ${y + r * 2}" stroke="#8A5A2B" stroke-width="1.5" fill="none"/>
+    <g class="${big ? 'pulse' : ''}" style="transform-origin:${x}px ${y}px"><ellipse cx="${x}" cy="${y}" rx="${r * 0.92}" ry="${r}" fill="${c}" stroke="#263046" stroke-opacity=".2" stroke-width="3"/>
+    <path d="M${x - 6} ${y + r} L${x + 6} ${y + r} L${x} ${y + r + 8}Z" fill="${c}"/>
+    <ellipse cx="${x - r * 0.35}" cy="${y - r * 0.4}" rx="${r * 0.18}" ry="${r * 0.28}" fill="#fff" opacity=".45"/>
+    <text x="${x}" y="${y - (big ? 14 : 6)}" text-anchor="middle" font-family="Fredoka" font-size="${big ? 11 : 8.5}" font-weight="700" letter-spacing="1" fill="#fff" opacity=".9">${tag}</text>
+    <text x="${x}" y="${y + (big ? 8 : 8)}" text-anchor="middle" font-family="Fredoka" font-size="${big ? 20 : 13}" font-weight="700" fill="#fff">${title}</text>
+    ${sub ? `<text x="${x}" y="${y + 26}" text-anchor="middle" font-family="Fredoka" font-size="12" font-weight="600" fill="#fff">${sub}</text>` : ''}</g></g>`;
+}
+
+document.getElementById('grid').innerHTML = designs.map((d, i) => `
+  <div class="opt"><div class="phone">${d.html()}</div>
+    <h2><b>${'ABCDEFGHIJKL'[i]}</b>${d.name}</h2><p>${d.line}</p></div>`).join('');
+</script>
+</body>
+</html>

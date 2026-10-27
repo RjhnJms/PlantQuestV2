@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Colouring and Story</title>
+<style>
+  :root { --bg:#FFF9EC; --card:#fff; --border:#F0E6D0; --borderDeep:#E3D6BA; --text:#263046; --muted:#6E7191;
+          --leaf:#4CC35A; --leafDark:#2E9142; --leafTint:#E6F8DD; --grapeTint:#EFEAFF; --page:#F4EEDF; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--text); font:15px/1.4 "Nunito", system-ui, sans-serif; }
+  .wrap { max-width:980px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { margin:0 0 4px; font-size:26px; }
+  .lead { color:var(--muted); margin:0 0 14px; max-width:640px; }
+  .pick { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .pick button { font:inherit; font-weight:800; border:2px solid var(--borderDeep); background:var(--card); color:var(--text); border-radius:14px; padding:8px 14px; cursor:pointer; }
+  .pick button.on { background:var(--leaf); border-color:var(--leafDark); color:#fff; }
+  .row { display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start; }
+  .phone { width:340px; max-width:100%; height:700px; background:var(--bg); border:10px solid #263046; border-radius:38px; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+  .notes { flex:1; min-width:260px; max-width:520px; }
+  .notes h2 { font-size:18px; margin:4px 0 6px; }
+  .notes ul { margin:0 0 12px; padding-left:20px; }
+  .notes li { margin-bottom:4px; }
+  .head { display:flex; align-items:center; gap:10px; padding:14px 16px 6px; }
+  .back { width:38px; height:38px; border-radius:12px; background:var(--card); border:2px solid var(--border); display:grid; place-items:center; font-weight:900; }
+  .head h3 { margin:0; font-size:21px; flex:1; }
+  .big { display:block; width:100%; font:inherit; font-weight:900; font-size:17px; border:0; border-radius:16px; padding:12px; background:var(--leaf); color:#fff; box-shadow:0 4px 0 var(--leafDark); cursor:pointer; }
+  .big.alt { background:var(--grapeTint); color:#4a3aa8; box-shadow:0 4px 0 #cfc3f5; }
+  .big:active { transform:translateY(3px); box-shadow:none; }
+  .hidden { display:none !important; }
+
+  /* colouring */
+  .canvas { margin:6px 16px; background:#fff; border:3px solid var(--borderDeep); border-radius:22px; flex:1; display:grid; place-items:center; overflow:hidden; }
+  .canvas svg [data-r] { cursor:pointer; transition:fill .25s; }
+  .canvas svg [data-r]:hover { filter:brightness(.97); }
+  .palette { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; padding:8px 16px; }
+  .palette div { aspect-ratio:1; border-radius:50%; border:3px solid #fff; box-shadow:0 0 0 2px var(--borderDeep); cursor:pointer; transition:transform .15s; }
+  .palette div.on { transform:scale(1.18); box-shadow:0 0 0 3px var(--text); }
+  .foot { padding:6px 16px 16px; display:flex; gap:8px; }
+  .foot .big { flex:1; font-size:15px; }
+  .kubo { flex:1; position:relative; background:repeating-linear-gradient(90deg,#E9C98E 0 18px,#DDB877 18px 21px); display:flex; flex-direction:column; }
+  .roof { height:70px; background:repeating-linear-gradient(100deg,#B9893F 0 7px,#A47532 7px 10px); clip-path:polygon(0 0,100% 0,100% 70%,0 100%); }
+  .frames { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:18px; align-content:start; }
+  .frame { background:#fff; border:8px solid #8A5A2B; border-radius:6px; aspect-ratio:3/4; display:grid; place-items:center; box-shadow:0 6px 0 #00000022; position:relative; }
+  .frame::before { content:""; position:absolute; top:-26px; left:50%; width:30px; height:20px; border:2px solid #6E4A24; border-bottom:0; transform:translateX(-50%); clip-path:polygon(50% 0,100% 100%,0 100%); }
+  .frame.empty { background:#ffffff88; border-style:dashed; border-color:#A47532; color:#7A4E25; font-weight:800; font-size:12px; text-align:center; padding:6px; }
+  .frame.new { animation:hang .7s cubic-bezier(.3,1.6,.5,1); transform-origin:50% -26px; }
+  @keyframes hang { 0% { transform:translateY(-60px) rotate(-8deg); opacity:0; } 60% { transform:rotate(5deg); opacity:1; } 100% { transform:rotate(0); } }
+  .floor { height:60px; background:repeating-linear-gradient(0deg,#A47532 0 6px,#8A5A2B 6px 8px); }
+  .tag { position:absolute; bottom:-22px; left:0; right:0; text-align:center; font-size:11px; font-weight:800; color:#5a3a18; }
+
+  /* story */
+  .book { flex:1; display:flex; flex-direction:column; }
+  .scene { margin:6px 16px 0; border-radius:22px; overflow:hidden; border:3px solid var(--borderDeep); aspect-ratio:1/1; background:#BFE9FF; position:relative; }
+  .scene svg { display:block; width:100%; height:100%; }
+  .page-in { animation:turn .5s ease; }
+  @keyframes turn { from { opacity:0; transform:translateX(30px) rotateY(-20deg); } to { opacity:1; transform:none; } }
+  .caption { margin:10px 16px 0; background:#fff; border:2px solid var(--border); border-radius:18px; padding:12px 14px; font-size:16px; font-weight:700; min-height:96px; }
+  .caption .w { transition:background .2s; border-radius:4px; }
+  .caption .w.on { background:#FFF1C7; }
+  .ctrl { display:flex; gap:8px; align-items:center; padding:10px 16px 16px; margin-top:auto; }
+  .ctrl button.round { width:52px; height:52px; border-radius:16px; border:2px solid var(--borderDeep); background:#fff; font:inherit; font-size:22px; font-weight:900; cursor:pointer; color:var(--text); }
+  .dots { flex:1; display:flex; justify-content:center; gap:6px; }
+  .dots i { width:10px; height:10px; border-radius:50%; background:var(--borderDeep); }
+  .dots i.on { background:var(--leaf); width:22px; border-radius:99px; }
+  .chapter { position:absolute; inset:0; display:grid; place-items:center; background:#FFF9ECee; text-align:center; }
+  .chapter small { display:block; font-weight:900; color:var(--leafDark); letter-spacing:2px; }
+  .chapter b { display:block; font-size:30px; margin:4px 0; }
+  .chapter span { color:var(--muted); }
+  .cloud { animation:drift 9s linear infinite alternate; }
+  @keyframes drift { to { transform:translateX(30px); } }
+  .bob { animation:bob 1.4s ease-in-out infinite alternate; transform-box:fill-box; transform-origin:center; }
+  @keyframes bob { to { transform:translateY(-8px) rotate(4deg); } }
+  .fly { animation:fly 3.5s ease-in-out infinite alternate; transform-box:fill-box; }
+  @keyframes fly { from { transform:translate(-10px,10px) rotate(-6deg); } to { transform:translate(14px,-12px) rotate(6deg); } }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page:#1d2230; } .notes, h1 { color:#f2f2f5; } .lead { color:#b5b8cc; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Colouring pages and Binhi's story</h1>
+  <p class="lead">Both phones work: tap them. Switch between the two features with the buttons.</p>
+  <div class="pick" id="feat">
+    <button data-f="colour" class="on">6. Colouring pages</button>
+    <button data-f="story">7. Binhi's story</button>
+  </div>
+
+  <!-- COLOURING -->
+  <div class="row" id="colour">
+    <div class="phone">
+      <div id="paint" style="display:flex;flex-direction:column;flex:1">
+        <div class="head"><div class="back">‹</div><h3>Colour Gumamela</h3></div>
+        <div class="canvas"><svg id="art" viewBox="0 0 200 250" width="290" height="360"></svg></div>
+        <div class="palette" id="palette"></div>
+        <div class="foot"><button class="big alt" onclick="clearArt()">START AGAIN</button><button class="big" onclick="hang()">HANG IT</button></div>
+      </div>
+      <div id="wall" class="hidden" style="display:flex;flex-direction:column;flex:1">
+        <div class="head"><div class="back" onclick="backToPaint()" style="cursor:pointer">‹</div><h3>Bahay kubo wall</h3></div>
+        <div class="kubo">
+          <div class="roof"></div>
+          <div class="frames" id="frames"></div>
+          <div class="floor"></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h2>How it works</h2>
+      <ul>
+        <li>Each plant you've explored gets a colouring page (15 in all), opened from the plant's page ("Colour it") or from the bahay kubo.</li>
+        <li><b>Tap a colour, then tap a part</b> to fill it. No messy brushes, so it's easy for small fingers and always looks neat.</li>
+        <li>Any colour is allowed: a blue gumamela is fine. It's for fun, not a test.</li>
+        <li><b>HANG IT</b> puts the picture in a frame on the bahay kubo wall in My Garden. Tap the kubo to see your gallery.</li>
+        <li>First finished picture of each plant: +2 leaves.</li>
+      </ul>
+      <h2>Choices for later</h2>
+      <ul>
+        <li>A "real colours" hint button that shows the plant's true colours.</li>
+        <li>Patterns (dots, stripes) as extra paints bought in the Shop.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- STORY -->
+  <div class="row hidden" id="story">
+    <div class="phone">
+      <div class="book">
+        <div class="head"><div class="back">‹</div><h3>Binhi's story</h3></div>
+        <div class="scene" id="scene"></div>
+        <div class="caption" id="caption"></div>
+        <div class="ctrl">
+          <button class="round" onclick="go(-1)">‹</button>
+          <button class="round" onclick="readPage()" title="Read aloud">
+            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3z" fill="#263046"/><path d="M16 8c1.5 1.2 1.5 6.8 0 8M19 5c3 2.5 3 11.5 0 14" stroke="#263046" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+          </button>
+          <div class="dots" id="dots"></div>
+          <button class="round" onclick="go(1)">›</button>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h2>How it works</h2>
+      <ul>
+        <li>When a child finishes the last plant of a world, a short story opens (4–5 pages) before the next world unlocks.</li>
+        <li>Three chapters: <b>Backyard → Rice fields → Forest</b>, plus an ending when everything is done.</li>
+        <li>Each page has one picture and 1–2 short sentences. Read-aloud reads it and highlights each word.</li>
+        <li>Stories stay on the Profile page ("My stories") to read again any time.</li>
+      </ul>
+      <h2>What's in this sample</h2>
+      <ul>
+        <li>The end of Chapter 1: a breeze carries Binhi from the backyard to the rice fields.</li>
+        <li>The real pictures would use the app's world scenes and Binhi drawings.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+document.querySelectorAll('#feat button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('#feat button').forEach(x => x.classList.toggle('on', x === b));
+  $('colour').classList.toggle('hidden', b.dataset.f !== 'colour');
+  $('story').classList.toggle('hidden', b.dataset.f !== 'story');
+  speechSynthesis.cancel();
+});
+
+/* ---------- colouring ---------- */
+const ink = 'stroke="#263046" stroke-width="3" stroke-linejoin="round" fill="#fff"';
+const petal = a => `<path data-r ${ink} transform="rotate(${a} 100 92)" d="M100 90 C80 70 78 34 100 26 C122 34 120 70 100 90Z"/>`;
+const pageArt = `
+  <path data-r ${ink} d="M8 8 H192 V178 H8Z" style="stroke-width:0"/>
+  <path data-r ${ink} d="M97 110 C95 140 98 160 100 182 L106 182 C104 160 102 140 103 110Z"/>
+  <path data-r ${ink} d="M100 150 C80 140 60 146 50 162 C70 168 88 164 100 150Z"/>
+  <path data-r ${ink} d="M104 136 C122 124 144 128 154 142 C136 150 118 148 104 136Z"/>
+  ${[0,72,144,216,288].map(petal).join('')}
+  <circle data-r ${ink} cx="100" cy="92" r="11"/>
+  <path data-r ${ink} d="M104 86 C116 70 128 60 138 54 L141 58 C130 64 118 74 108 90Z"/>
+  <circle data-r ${ink} cx="140" cy="54" r="6"/>
+  <path data-r ${ink} d="M56 182 H144 L136 238 H64Z"/>
+  <path data-r ${ink} d="M50 176 H150 V194 H50Z"/>`;
+const colours = ['#FF5C7A','#FF9F43','#FFC93C','#4CC35A','#2E9142','#6EC6FF','#3B7DDD','#8E6CFF','#FF8FB1','#C98A4B','#E07A4E','#FFFFFF'];
+let paint = colours[0];
+function buildPalette() {
+  $('palette').innerHTML = colours.map((c, i) => `<div style="background:${c}" class="${i ? '' : 'on'}" data-c="${c}"></div>`).join('');
+  $('palette').querySelectorAll('div').forEach(d => d.onclick = () => {
+    paint = d.dataset.c;
+    $('palette').querySelectorAll('div').forEach(x => x.classList.toggle('on', x === d));
+  });
+}
+function clearArt() {
+  $('art').innerHTML = pageArt;
+  $('art').querySelectorAll('[data-r]').forEach(r => r.onclick = () => r.setAttribute('fill', paint));
+}
+const hung = [];
+function hang() {
+  hung.unshift($('art').innerHTML);
+  $('paint').classList.add('hidden'); $('wall').classList.remove('hidden');
+  const names = ['Gumamela'];
+  $('frames').innerHTML = hung.slice(0, 4).map((h, i) =>
+    `<div class="frame ${i ? '' : 'new'}"><svg viewBox="0 0 200 250" width="100%" height="100%">${h}</svg><div class="tag">Gumamela</div></div>`).join('')
+    + Array.from({ length: Math.max(0, 4 - hung.length) }, () => '<div class="frame empty">Colour another plant to hang here</div>').join('');
+}
+function backToPaint() { $('wall').classList.add('hidden'); $('paint').classList.remove('hidden'); clearArt(); }
+buildPalette(); clearArt();
+
+/* ---------- story ---------- */
+const binhi = (x, y, s = 1, cls = 'bob') => `<g transform="translate(${x} ${y}) scale(${s})"><g class="${cls}">
+  <path d="M0 -26 C0 -40 -10 -46 -20 -42 C-15 -32 -8 -28 0 -26 C2 -38 12 -44 22 -40 C17 -30 9 -27 0 -26" fill="#4CC35A" stroke="#2E9142" stroke-width="2.5"/>
+  <ellipse cx="0" cy="0" rx="24" ry="22" fill="#C98A4B" stroke="#8A5A2B" stroke-width="3"/>
+  <circle cx="-8" cy="-3" r="3.4" fill="#263046"/><circle cx="8" cy="-3" r="3.4" fill="#263046"/>
+  <path d="M-7 7 Q0 13 7 7" stroke="#263046" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  <circle cx="-14" cy="5" r="3.5" fill="#FF8FB1" opacity=".6"/><circle cx="14" cy="5" r="3.5" fill="#FF8FB1" opacity=".6"/></g></g>`;
+const cloud = (x, y) => `<g class="cloud"><g transform="translate(${x} ${y})" fill="#fff"><circle r="14"/><circle cx="16" cy="-6" r="18"/><circle cx="34" r="13"/><rect x="-10" y="0" width="54" height="13" rx="6"/></g></g>`;
+const sun = `<circle cx="250" cy="60" r="26" fill="#FFC93C"/>`;
+const house = `<g transform="translate(36 128)"><path d="M0 50 L50 10 L100 50Z" fill="#B9893F"/><rect x="10" y="50" width="80" height="60" fill="#E9C98E"/><rect x="40" y="72" width="20" height="38" fill="#8A5A2B"/><rect x="18" y="62" width="16" height="14" fill="#BFE9FF"/></g>`;
+const fence = `<g fill="#E9C98E" stroke="#B9893F" stroke-width="2">${[0,1,2,3,4,5,6,7,8,9,10].map(i=>`<rect x="${i*30}" y="210" width="16" height="50" rx="3"/>`).join('')}<rect x="0" y="222" width="320" height="8"/></g>`;
+const ground = c => `<rect x="0" y="240" width="320" height="80" fill="${c}"/>`;
+const pot = `<path d="M130 236 H190 L184 280 H136Z" fill="#E07A4E" stroke="#B5522B" stroke-width="3"/>`;
+const gumamela = (x, y) => `<g transform="translate(${x} ${y})"><path d="M0 30 V-10" stroke="#2E9142" stroke-width="4"/>${[0,72,144,216,288].map(a=>`<ellipse rx="9" ry="14" cy="-22" fill="#FF5C7A" transform="rotate(${a} 0 -10)"/>`).join('')}<circle cy="-10" r="5" fill="#FFC93C"/></g>`;
+const rice = `<g stroke="#7FB33A" stroke-width="3" stroke-linecap="round">${Array.from({length:22},(_, i)=>`<path d="M${i*15+4} 300 Q${i*15+8} 270 ${i*15+14} 258"/>`).join('')}</g>`;
+const paddies = `<rect x="0" y="200" width="320" height="120" fill="#9BD15A"/><path d="M0 230 H320 M0 262 H320 M0 294 H320" stroke="#6FA338" stroke-width="3"/><path d="M0 208 Q160 196 320 208" stroke="#7ED6FF" stroke-width="6" fill="none"/>`;
+const mountains = `<path d="M0 200 L70 120 L130 200Z" fill="#7BBF86"/><path d="M90 200 L180 100 L270 200Z" fill="#5FAE72"/><path d="M220 200 L290 140 L320 170 V200Z" fill="#7BBF86"/>`;
+const carabao = `<g transform="translate(220 232)"><ellipse rx="34" ry="18" fill="#6E6A78"/><circle cx="34" cy="-10" r="13" fill="#6E6A78"/><path d="M30 -20 C20 -34 46 -38 52 -26 M38 -20 C48 -34 60 -26 56 -18" stroke="#EDE3CB" stroke-width="4" fill="none" stroke-linecap="round"/><rect x="-26" y="10" width="8" height="18" fill="#6E6A78"/><rect x="18" y="10" width="8" height="18" fill="#6E6A78"/><circle cx="38" cy="-12" r="2.4" fill="#263046"/></g>`;
+const wind = `<g stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".9"><path class="cloud" d="M20 120 Q70 100 120 120 T200 110"/><path class="cloud" d="M40 160 Q90 140 150 160"/></g>`;
+const leafSail = (x, y) => `<g transform="translate(${x} ${y})"><g class="fly"><path d="M0 0 C30 -40 80 -30 90 0 C60 14 24 14 0 0Z" fill="#4CC35A" stroke="#2E9142" stroke-width="3"/><path d="M4 0 H86" stroke="#2E9142" stroke-width="2"/>${binhi(46,26,.75,'')}</g></g>`;
+
+const pages = [
+  { scene: `<rect width="320" height="320" fill="#BFE9FF"/>${sun}${cloud(30,50)}${house}${fence}${ground('#8FD16A')}${gumamela(70,226)}${pot}${binhi(160,222)}`,
+    text: 'Binhi knew every plant in the backyard now. The gumamela, the kangkong, even shy little makahiya.' },
+  { scene: `<rect width="320" height="320" fill="#A9DDF7"/>${cloud(40,40)}${cloud(190,70)}${wind}${fence}${ground('#8FD16A')}${pot}${binhi(160,222)}`,
+    text: '"What plants grow past the fence?" he wondered. Just then, a big breeze came whooshing by.' },
+  { scene: `<rect width="320" height="320" fill="#BFE9FF"/>${cloud(200,40)}${wind}${mountains}${paddies}${leafSail(90,150)}`,
+    text: 'Binhi grabbed a big leaf. Up, up he floated, over the fence, over the road, all the way to the rice fields!' },
+  { scene: `<rect width="320" height="320" fill="#FFE7B8"/>${sun.replace('250','70').replace('60','70')}${mountains}${paddies}${rice}${carabao}${binhi(110,250)}`,
+    text: '"Magandang umaga!" said a kind carabao. "Welcome to the bukid. There is so much to learn here."' },
+  { scene: `<rect width="320" height="320" fill="#FFE7B8"/>${mountains}${paddies}${rice}${binhi(160,190,1.3)}`,
+    chapter: true, text: 'Chapter 2: The Rice Fields. New plants are waiting for you!' },
+];
+let pageNo = 0;
+function showPage() {
+  const p = pages[pageNo];
+  $('scene').innerHTML = `<svg viewBox="0 0 320 320">${p.scene}</svg>` +
+    (p.chapter ? '<div class="chapter"><div><small>CHAPTER 2</small><b>The Rice Fields</b><span>New plants are waiting!</span><br><br><button class="big" style="width:auto;padding:10px 22px" onclick="this.textContent=\'Bukid unlocked\'">LET\'S GO!</button></div></div>' : '');
+  $('scene').classList.remove('page-in'); void $('scene').offsetWidth; $('scene').classList.add('page-in');
+  $('caption').innerHTML = p.text.split(' ').map(w => `<span class="w">${w}</span>`).join(' ');
+  $('dots').innerHTML = pages.map((_, i) => `<i class="${i === pageNo ? 'on' : ''}"></i>`).join('');
+}
+function go(d) { speechSynthesis.cancel(); pageNo = Math.max(0, Math.min(pages.length - 1, pageNo + d)); showPage(); }
+function readPage() {
+  speechSynthesis.cancel();
+  const words = [...$('caption').querySelectorAll('.w')];
+  const text = pages[pageNo].text;
+  const u = new SpeechSynthesisUtterance(text);
+  u.pitch = 1.15; u.rate = .9;
+  const starts = []; let pos = 0;
+  text.split(' ').forEach(w => { starts.push(pos); pos += w.length + 1; });
+  u.onboundary = e => { const i = starts.filter(s => s <= e.charIndex).length - 1; words.forEach((w, j) => w.classList.toggle('on', j === i)); };
+  u.onend = () => words.forEach(w => w.classList.remove('on'));
+  speechSynthesis.speak(u);
+}
+showPage();
+</script>
+</body>
+</html>

@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Colouring Tools</title>
+<style>
+  :root { --bg:#FFF9EC; --card:#fff; --border:#F0E6D0; --borderDeep:#E3D6BA; --text:#263046; --muted:#6E7191;
+          --leaf:#4CC35A; --leafDark:#2E9142; --leafTint:#E6F8DD; --grapeTint:#EFEAFF; --page:#F4EEDF; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--text); font:15px/1.4 "Nunito", system-ui, sans-serif; }
+  .wrap { max-width:980px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { margin:0 0 4px; font-size:26px; }
+  .lead { color:var(--muted); margin:0 0 14px; max-width:640px; }
+  .row { display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start; }
+  .phone { width:340px; max-width:100%; height:720px; background:var(--bg); border:10px solid #263046; border-radius:38px; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+  .notes { flex:1; min-width:260px; max-width:520px; }
+  .notes h2 { font-size:18px; margin:4px 0 6px; }
+  .notes ul { margin:0 0 12px; padding-left:20px; }
+  .notes li { margin-bottom:4px; }
+
+  .head { display:flex; align-items:center; gap:10px; padding:12px 14px 8px; }
+  .sq { width:40px; height:40px; border-radius:13px; background:var(--card); border:2px solid var(--border); border-bottom-width:4px; display:grid; place-items:center; font-weight:900; font-size:20px; cursor:pointer; flex:none; }
+  .sq:active { transform:translateY(2px); border-bottom-width:2px; }
+  .head h3 { margin:0; font-size:20px; flex:1; }
+
+  .desk { margin:0 14px; padding:10px; border-radius:24px; background:#E9D3A8; box-shadow:inset 0 -5px 0 #D6BC8A; }
+  .paper { height:300px; background:#FFFEFA; border-radius:6px; position:relative; touch-action:none; display:grid; place-items:center;
+           box-shadow:0 2px 0 #00000014, 0 6px 14px #8a5a2b33; }
+  .tape { position:absolute; width:58px; height:20px; background:repeating-linear-gradient(45deg,#FFD6E0cc 0 6px,#FFE9EFcc 6px 12px); top:-9px; z-index:2; pointer-events:none; box-shadow:0 1px 2px #0000001a; }
+  .tape.l { left:18px; transform:rotate(-8deg); }
+  .tape.r { right:18px; transform:rotate(7deg); background:repeating-linear-gradient(45deg,#CDEBFFcc 0 6px,#E5F5FFcc 6px 12px); }
+  .colours div::before { content:""; position:absolute; left:22%; top:16%; width:28%; height:20%; border-radius:50%; background:#fff; opacity:.45; }
+  .tool .dot { width:8px; height:8px; border-radius:50%; margin-top:1px; visibility:hidden; }
+  .tool.on .dot { visibility:visible; }
+  .head .thumb { width:40px; height:40px; border-radius:13px; background:#FFE3E8; display:grid; place-items:center; flex:none; }
+  .shade { position:absolute; inset:0; background:#26304677; display:grid; place-items:center; z-index:5; }
+  .rcard { width:280px; background:#fff; border-radius:26px; padding:18px; text-align:center; animation:pop .45s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes pop { from { transform:scale(.4); opacity:0; } to { transform:none; opacity:1; } }
+  .rframe { width:150px; margin:0 auto 10px; border:8px solid #8A5A2B; border-radius:6px; background:#fff; box-shadow:0 5px 0 #00000022; transform:rotate(-3deg); }
+  .rframe img { display:block; width:100%; }
+  .rtalk { display:flex; align-items:flex-end; gap:8px; text-align:left; margin-bottom:10px; }
+  .bubble { background:var(--leafTint); border-radius:14px 14px 14px 4px; padding:8px 10px; font-size:13.5px; font-weight:800; }
+  .leaves { display:inline-block; background:var(--leafTint); color:var(--leafDark); font-weight:900; border-radius:99px; padding:3px 12px; margin-bottom:12px; }
+  .gview { flex:1; position:relative; overflow:hidden; }
+  .gview svg { position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .gtip { position:absolute; left:14px; right:14px; bottom:14px; background:#fff; border:2px solid var(--border); border-bottom-width:4px; border-radius:16px; padding:10px 12px; font-weight:800; font-size:13.5px; animation:pop .4s .9s both cubic-bezier(.3,1.6,.5,1); }
+  #kubo { cursor:pointer; }
+  .drop { animation:drop .9s .35s both cubic-bezier(.3,1.5,.5,1); transform-box:fill-box; transform-origin:50% 0; }
+  @keyframes drop { 0% { transform:translateY(-140px) rotate(-14deg); opacity:0; } 55% { transform:translateY(0) rotate(9deg); opacity:1; } 75% { transform:rotate(-4deg); } 100% { transform:none; } }
+  .glow { animation:glow 1.4s 1.2s 3 ease-in-out; transform-box:fill-box; transform-origin:center; }
+  @keyframes glow { 50% { transform:scale(1.08); } }
+  .sway { animation:sway 3s ease-in-out infinite alternate; transform-box:fill-box; transform-origin:50% 100%; }
+  @keyframes sway { from { transform:skewX(-3deg); } to { transform:skewX(3deg); } }
+  .head .sub { display:block; font-size:12px; color:var(--muted); font-weight:700; }
+  .paper .art { position:relative; width:232px; height:290px; }
+  .paper canvas { position:absolute; inset:0; width:232px; height:290px; }
+  #outline { pointer-events:none; }
+
+  .label { margin:12px 16px 6px; font-size:12px; font-weight:900; color:var(--muted); letter-spacing:1px; }
+  .tools { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:0 14px; }
+  .tool { background:var(--card); border:2px solid var(--border); border-bottom-width:4px; border-radius:16px; height:70px; cursor:pointer;
+          display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; transition:transform .15s, background .15s, border-color .15s; }
+  .tool span { font-size:12px; font-weight:900; }
+  .tool.on { background:var(--leafTint); border-color:var(--leaf); transform:translateY(-3px); }
+
+  .colours { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; padding:0 18px; }
+  .colours div { aspect-ratio:1; border-radius:50%; cursor:pointer; position:relative; box-shadow:inset 0 -4px 0 #00000022; transition:transform .15s; }
+  .colours div.light { box-shadow:inset 0 0 0 2px var(--borderDeep), inset 0 -4px 0 #00000014; }
+  .colours div.on { transform:scale(1.12); }
+  .colours div.on::after { content:""; position:absolute; inset:-5px; border-radius:50%; border:3px solid var(--text); }
+
+  .foot { padding:0 14px 14px; display:flex; gap:8px; margin-top:auto; }
+  .big { flex:1; font:inherit; font-weight:900; font-size:15px; border:0; border-radius:16px; padding:12px; background:var(--leaf); color:#fff; box-shadow:0 4px 0 var(--leafDark); cursor:pointer; }
+  .big.alt { background:var(--grapeTint); color:#4a3aa8; box-shadow:0 4px 0 #cfc3f5; }
+  .big:active { transform:translateY(3px); box-shadow:none; }
+  .hidden { display:none !important; }
+
+  .kubo { flex:1; position:relative; background:repeating-linear-gradient(90deg,#E9C98E 0 18px,#DDB877 18px 21px); display:flex; flex-direction:column; }
+  .roof { height:70px; background:repeating-linear-gradient(100deg,#B9893F 0 7px,#A47532 7px 10px); clip-path:polygon(0 0,100% 0,100% 70%,0 100%); }
+  .frames { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:26px 16px; padding:26px 18px; align-content:start; }
+  .frame { background:#fff; border:8px solid #8A5A2B; border-radius:6px; aspect-ratio:4/5; display:grid; place-items:center; box-shadow:0 6px 0 #00000022; position:relative; }
+  .frame img { width:100%; height:100%; object-fit:contain; }
+  .frame::before { content:""; position:absolute; top:-26px; left:50%; width:30px; height:20px; border:2px solid #6E4A24; border-bottom:0; transform:translateX(-50%); clip-path:polygon(50% 0,100% 100%,0 100%); }
+  .frame.empty { background:#ffffff88; border-style:dashed; border-color:#A47532; color:#7A4E25; font-weight:800; font-size:12px; text-align:center; padding:6px; }
+  .frame.new { animation:hang .7s cubic-bezier(.3,1.6,.5,1); transform-origin:50% -26px; }
+  @keyframes hang { 0% { transform:translateY(-60px) rotate(-8deg); opacity:0; } 60% { transform:rotate(5deg); opacity:1; } 100% { transform:rotate(0); } }
+  .floor { height:56px; background:repeating-linear-gradient(0deg,#A47532 0 6px,#8A5A2B 6px 8px); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page:#1d2230; } .notes, h1 { color:#f2f2f5; } .lead { color:#b5b8cc; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Colouring pages: colour it yourself</h1>
+  <p class="lead">Polished version: the page is taped onto a little wooden desk, the picture has more to colour (sun, clouds, a butterfly) with fine detail lines, and the tools look like real crayons and brushes.</p>
+  <div class="row">
+    <div class="phone">
+      <div id="paint" style="display:flex;flex-direction:column;flex:1">
+        <div class="head"><div class="sq">‹</div><h3>Colour Gumamela<span class="sub">Any colours you like!</span></h3>
+          <div class="sq" id="undo" title="Undo"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M9 6 L4 10.5 L9 15" fill="none" stroke="#263046" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10.5 H14 C18 10.5 20 13 20 16 C20 18.6 18 20 16 20" fill="none" stroke="#263046" stroke-width="2.8" stroke-linecap="round"/></svg></div>
+        </div>
+        <div class="desk"><div class="paper" id="paper"><div class="tape l"></div><div class="tape r"></div><div class="art">
+          <canvas id="colour"></canvas><canvas id="preview"></canvas><canvas id="outline"></canvas>
+        </div></div></div>
+        <div class="label">COLOURS</div>
+        <div class="colours" id="colours"></div>
+        <div class="label">TOOLS</div>
+        <div class="tools" id="tools"></div>
+        <div style="height:14px"></div>
+        <div class="foot"><button class="big alt" id="clear">START AGAIN</button><button class="big" id="hang">HANG IT</button></div>
+      </div>
+      <div class="shade hidden" id="reward"><div class="rcard">
+        <div class="rframe"><img id="rewardPic" alt="Your Gumamela"></div>
+        <div class="rtalk">${BINHI}<div class="bubble">Ang ganda! I'll hang it in our bahay kubo.</div></div>
+        <div class="leaves">+2 leaves</div>
+        <button class="big" id="toGarden" style="width:100%">SEE IT IN MY GARDEN</button>
+      </div></div>
+      <div id="garden" class="hidden" style="display:flex;flex-direction:column;flex:1;position:relative">
+        <div class="head"><div class="sq" id="backGarden">‹</div><h3>My Garden</h3></div>
+        <div class="gview"><svg id="gsvg" viewBox="0 0 320 600" preserveAspectRatio="xMidYMax slice"></svg></div>
+        <div class="gtip" id="gtip">Your Gumamela is up on the bahay kubo! Tap the house to see all your pictures.</div>
+      </div>
+      <div id="wall" class="hidden" style="display:flex;flex-direction:column;flex:1">
+        <div class="head"><div class="sq" id="backWall">‹</div><h3>Bahay kubo wall</h3></div>
+        <div class="kubo"><div class="roof"></div><div class="frames" id="frames"></div><div class="floor"></div></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h2>What changed</h2>
+      <ul>
+        <li><b>Four tools only</b>, each a big button with a name: Crayon, Paint, Fill, Eraser. The marker is gone (too close to the crayon).</li>
+        <li><b>No size buttons.</b> Each tool already has a good size for small fingers.</li>
+        <li><b>No "stay inside the lines" switch.</b> It's always on, so colour never spills into the next part. One less thing to understand.</li>
+        <li><b>12 bigger colours</b> in two neat rows. The tools don't change colour any more, so the screen stays calm.</li>
+        <li>Cleaner picture: thicker, smoother lines, and a sun and a hill to colour too.</li>
+      </ul>
+      <h2>After HANG IT</h2>
+      <ul>
+        <li>Binhi shows the framed picture: "Ang ganda!" and +2 leaves (only the first time for each plant).</li>
+        <li><b>SEE IT IN MY GARDEN</b> opens the garden. The picture drops onto the bahay kubo wall with a little swing and glows for a moment.</li>
+        <li>Tap the bahay kubo to see the gallery wall with all your pictures.</li>
+      </ul>
+      <h2>The tools</h2>
+      <ul>
+        <li><b>Crayon:</b> waxy and a bit grainy.</li>
+        <li><b>Paint:</b> soft and see-through. Go over it again to make it darker.</li>
+        <li><b>Fill:</b> one tap colours a whole part.</li>
+        <li><b>Eraser</b>, plus <b>Undo</b> at the top right.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const W = 232, H = 290, S = W / 200, DPR = Math.max(1, window.devicePixelRatio || 1);
+const canvases = ['colour', 'preview', 'outline'].map(id => $(id));
+canvases.forEach(c => { c.width = W * DPR; c.height = H * DPR; });
+const [cc, pc, oc] = canvases.map(c => c.getContext('2d'));
+const mk = () => { const c = document.createElement('canvas'); c.width = W * DPR; c.height = H * DPR; return c; };
+const stroke = mk(), sc = stroke.getContext('2d');
+const toPx = ctx => ctx.setTransform(DPR * S, 0, 0, DPR * S, 0, 0);
+
+/* ---------- the picture: parts in drawing order (bottom first) ---------- */
+const P = d => new Path2D(d);
+const rot = (d, a) => { const p = new Path2D(); p.addPath(new Path2D(d), new DOMMatrix().translate(100, 92).rotate(a).translate(-100, -92)); return p; };
+const circ = (x, y, r) => { const p = new Path2D(); p.arc(x, y, r, 0, Math.PI * 2); return p; };
+const petal = 'M100 90 C80 74 76 40 92 31 C96 29 98 32 100 34 C102 32 104 29 108 31 C124 40 120 74 100 90Z';
+const petalVeins = 'M100 84 C99 70 99 54 100 42 M100 70 C95 64 92 58 91 50 M100 70 C105 64 108 58 109 50';
+const rotD = (d, a) => { const p = new Path2D(); p.addPath(new Path2D(d), new DOMMatrix().translate(100, 92).rotate(a).translate(-100, -92)); return p; };
+const cloud = (x, y, s) => { const p = new Path2D(); p.addPath(new Path2D('M0 0 C-10 0 -10 -13 0 -13 C2 -22 16 -24 20 -15 C26 -20 36 -16 34 -8 C42 -7 42 0 34 0Z'), new DOMMatrix().translate(x, y).scale(s)); return p; };
+// d = small inside lines (veins, stripes) drawn thinner; they are not separate parts.
+const parts = [
+  { bg: true, p: P('M0 0 H200 V250 H0Z') },
+  { p: P('M-4 214 C40 198 150 198 204 212 V254 H-4Z'),
+    d: P('M14 226 l3 -8 l3 8 M24 236 l2 -6 l2 6 M170 228 l3 -8 l3 8 M182 238 l2 -6 l2 6 M40 242 l2 -6 l2 6') },
+  { p: circ(32, 32, 14),
+    d: P('M32 9 V3 M32 55 V61 M9 32 H3 M55 32 H61 M16 16 L12 12 M48 16 L52 12 M16 48 L12 52 M48 48 L52 52') },
+  { p: cloud(118, 30, 0.9) },
+  { p: cloud(150, 52, 0.7) },
+  { p: P('M97 108 C95 140 98 165 100 186 L106 186 C104 165 102 140 103 108Z') },
+  { p: P('M100 152 C82 140 62 145 50 163 C72 169 90 165 100 152Z'), d: P('M98 153 C84 152 70 156 56 162') },
+  { p: P('M104 136 C120 124 142 127 154 141 C134 150 116 148 104 136Z'), d: P('M106 136 C120 136 136 137 148 141') },
+  ...[0, 72, 144, 216, 288].map(a => ({ p: rot(petal, a), d: rotD(petalVeins, a) })),
+  { p: circ(100, 92, 10), d: P('M96 89 h.1 M103 88 h.1 M100 95 h.1') },
+  { p: P('M105 86 C116 72 127 63 136 58 L139 62 C130 67 119 76 109 90Z') },
+  { p: circ(139, 58, 5.5) },
+  { p: P('M62 190 H138 L131 236 H69Z'), d: P('M66 210 L74 204 L82 210 L90 204 L98 210 L106 204 L114 210 L122 204 L130 210 L134 207') },
+  { p: P('M56 180 H144 Q147 180 147 183 V193 Q147 196 144 196 H56 Q53 196 53 193 V183 Q53 180 56 180Z') },
+  { p: P('M162 98 C150 84 152 74 160 76 C166 78 168 88 166 98Z') },
+  { p: P('M170 98 C182 84 180 74 172 76 C166 78 164 88 166 98Z') },
+  { p: P('M164 102 C152 108 150 116 156 117 C162 117 166 110 166 102Z') },
+  { p: P('M168 102 C180 108 182 116 176 117 C170 117 166 110 166 102Z') },
+  { p: P('M164 90 C164 86 168 86 168 90 V108 C168 112 164 112 164 108Z'), d: P('M165 87 C163 81 160 79 158 78 M167 87 C169 81 172 79 174 78') },
+];
+
+// Outline: each part hides the lines of the parts under it, then draws its own.
+toPx(oc);
+oc.lineJoin = oc.lineCap = 'round'; oc.strokeStyle = '#2B3148';
+parts.forEach(part => {
+  if (part.bg) return;
+  oc.globalCompositeOperation = 'destination-out'; oc.fill(part.p);
+  oc.globalCompositeOperation = 'source-over';
+  oc.lineWidth = 3.4; oc.stroke(part.p);
+  if (part.d) { oc.lineWidth = 1.8; oc.globalAlpha = 0.75; oc.stroke(part.d); oc.globalAlpha = 1; }
+});
+
+// Which part is under each pixel, and a mask per part.
+const ids = mk(), ic = ids.getContext('2d', { willReadFrequently: true });
+const STEP = Math.floor(250 / parts.length);
+toPx(ic);
+parts.forEach((part, i) => { ic.fillStyle = `rgb(${(i + 1) * STEP},0,0)`; ic.fill(part.p); });
+const idData = ic.getImageData(0, 0, ids.width, ids.height).data;
+const masks = parts.map((part, i) => {
+  const m = mk(), mc = m.getContext('2d'), img = mc.createImageData(m.width, m.height);
+  for (let k = 0; k < idData.length; k += 4) if (idData[k] === (i + 1) * STEP) img.data[k + 3] = 255;
+  mc.putImageData(img, 0, 0); return m;
+});
+function partAt(x, y) {
+  for (let r = 0; r <= 6; r++) for (let dx = -r; dx <= r; dx++) for (let dy = -r; dy <= r; dy++) {
+    const px = Math.round((x + dx) * DPR), py = Math.round((y + dy) * DPR);
+    if (px < 0 || py < 0 || px >= ids.width || py >= ids.height) continue;
+    const v = idData[(py * ids.width + px) * 4];
+    if (v && v % STEP === 0) return v / STEP - 1;
+  }
+  return -1;
+}
+
+/* ---------- tools and colours ---------- */
+const ink = 'stroke="#2B3148" stroke-width="2" stroke-linejoin="round"';
+const shine = 'fill="#fff" opacity=".55"';
+const icon = {
+  crayon: `<svg width="44" height="38" viewBox="0 0 44 38"><g transform="rotate(-35 22 19)">
+    <path d="M5 14 H31 V24 H5 Q3 24 3 22 V16 Q3 14 5 14Z" fill="#FF5C7A" ${ink}/>
+    <path d="M10 14 H26 V24 H10Z" fill="#FFE3E8" ${ink}/><path d="M13 19 H23" stroke="#FF5C7A" stroke-width="2" stroke-linecap="round"/>
+    <path d="M31 14 L39 18 Q40 19 39 20 L31 24Z" fill="#FF5C7A" ${ink}/><rect x="4.5" y="15.5" width="5" height="2" rx="1" ${shine}/></g></svg>`,
+  brush: `<svg width="44" height="38" viewBox="0 0 44 38"><g transform="rotate(-35 22 19)">
+    <path d="M2 16 Q2 15 3 15 H21 V23 H3 Q2 23 2 22Z" fill="#D9934A" ${ink}/><rect x="4" y="16.5" width="14" height="1.8" rx=".9" ${shine}/>
+    <path d="M21 14 H28 V24 H21Z" fill="#D6DAE2" ${ink}/><path d="M23 14 V24" stroke="#2B3148" stroke-width="1.2" opacity=".5"/>
+    <path d="M28 14 C35 14 40 17 42 19 C40 21 35 24 28 24Z" fill="#6EC6FF" ${ink}/><path d="M30 16.5 C34 16.5 37 17.5 38.5 18.5" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".7"/></g></svg>`,
+  fill: `<svg width="44" height="38" viewBox="0 0 44 38">
+    <path d="M9 13 H31 L28.5 34 Q28.3 35 27 35 H13 Q11.7 35 11.5 34Z" fill="#D6DAE2" ${ink}/>
+    <path d="M9.6 17 H30.4 L29.8 22 H10.2Z" fill="#4CC35A"/><path d="M9 13 H31" stroke="#2B3148" stroke-width="2"/>
+    <rect x="13" y="24" width="2.4" height="8" rx="1.2" ${shine}/>
+    <path d="M11 13 C11 3 29 3 29 13" fill="none" stroke="#2B3148" stroke-width="2"/>
+    <path d="M31 16 C37 19 37 25 35 29" fill="none" stroke="#4CC35A" stroke-width="4" stroke-linecap="round"/><circle cx="34.6" cy="33" r="2.2" fill="#4CC35A"/></svg>`,
+  eraser: `<svg width="44" height="38" viewBox="0 0 44 38"><g transform="rotate(-35 22 19)">
+    <rect x="6" y="12" width="32" height="14" rx="4" fill="#FF8FB1" ${ink}/>
+    <path d="M10 12 H19 V26 H10 Q6 26 6 22 V16 Q6 12 10 12Z" fill="#6EC6FF" ${ink}/>
+    <rect x="22" y="14.5" width="12" height="2.2" rx="1.1" ${shine}/></g></svg>`,
+};
+const tools = [['crayon', 'Crayon'], ['brush', 'Paint'], ['fill', 'Fill'], ['eraser', 'Eraser']];
+const width = { crayon: 10, brush: 20, eraser: 22 };
+const colours = ['#FF5C7A', '#FF9F43', '#FFC93C', '#4CC35A', '#2E9142', '#8B5A2B',
+                 '#6EC6FF', '#3B7DDD', '#8E6CFF', '#FF8FB1', '#2B3148', '#FFFFFF'];
+let tool = 'crayon', colour = colours[0];
+$('tools').innerHTML = tools.map(([k, label]) => `<div class="tool ${k === tool ? 'on' : ''}" data-t="${k}">${icon[k]}<span>${label}</span><i class="dot"></i></div>`).join('');
+$('tools').querySelectorAll('.tool').forEach(t => t.onclick = () => {
+  tool = t.dataset.t; $('tools').querySelectorAll('.tool').forEach(x => x.classList.toggle('on', x === t));
+});
+// The chosen tool shows a small dot of the chosen colour.
+const showDot = () => $('tools').querySelectorAll('.dot').forEach(d => { d.style.background = colour; d.style.boxShadow = colour === '#FFFFFF' ? 'inset 0 0 0 1px #c9bfa8' : 'none'; });
+showDot();
+$('colours').innerHTML = colours.map((c, i) => `<div style="background:${c}" class="${i ? '' : 'on'} ${c === '#FFFFFF' || c === '#FFC93C' ? 'light' : ''}" data-c="${c}"></div>`).join('');
+$('colours').querySelectorAll('div').forEach(d => d.onclick = () => {
+  colour = d.dataset.c; $('colours').querySelectorAll('div').forEach(x => x.classList.toggle('on', x === d)); showDot();
+  if (tool === 'eraser') { tool = 'crayon'; $('tools').querySelectorAll('.tool').forEach(x => x.classList.toggle('on', x.dataset.t === 'crayon')); }
+});
+
+/* ---------- drawing (always stays inside the part you started in) ---------- */
+const undo = [];
+const save = () => { undo.push(cc.getImageData(0, 0, W * DPR, H * DPR)); if (undo.length > 20) undo.shift(); };
+$('undo').onclick = () => { const s = undo.pop(); if (s) cc.putImageData(s, 0, 0); };
+$('clear').onclick = () => { save(); cc.setTransform(1, 0, 0, 1, 0, 0); cc.clearRect(0, 0, W * DPR, H * DPR); };
+
+let down = false, last = null, part = -1;
+function pos(e) { const r = $('outline').getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
+function masked() {
+  if (part >= 0) {
+    sc.save(); sc.setTransform(1, 0, 0, 1, 0, 0); sc.globalCompositeOperation = 'destination-in';
+    sc.drawImage(masks[part], 0, 0); sc.restore();
+  }
+  return stroke;
+}
+function marks(a, b) {
+  const w = width[tool];
+  sc.setTransform(DPR, 0, 0, DPR, 0, 0);
+  if (tool === 'crayon') {
+    const dist = Math.hypot(b.x - a.x, b.y - a.y), steps = Math.max(1, dist / 1.2);
+    sc.fillStyle = colour;
+    for (let i = 0; i <= steps; i++) {
+      const x = a.x + (b.x - a.x) * i / steps, y = a.y + (b.y - a.y) * i / steps;
+      for (let k = 0; k < w * 2.2; k++) {
+        const ang = Math.random() * Math.PI * 2, r = Math.sqrt(Math.random()) * w / 2;
+        sc.globalAlpha = 0.55 + Math.random() * 0.45;
+        sc.fillRect(x + Math.cos(ang) * r, y + Math.sin(ang) * r, 1.6, 1.6);
+      }
+    }
+    sc.globalAlpha = 1;
+  } else {
+    sc.lineCap = sc.lineJoin = 'round'; sc.lineWidth = w; sc.strokeStyle = tool === 'eraser' ? '#000' : colour;
+    sc.shadowBlur = tool === 'brush' ? w * 0.6 * DPR : 0; sc.shadowColor = colour;
+    sc.beginPath(); sc.moveTo(a.x, a.y); sc.lineTo(b.x + 0.01, b.y); sc.stroke();
+    sc.shadowBlur = 0;
+  }
+}
+const alphaOf = () => tool === 'brush' ? 0.55 : 1;
+function showPreview() {
+  pc.setTransform(1, 0, 0, 1, 0, 0); pc.clearRect(0, 0, W * DPR, H * DPR);
+  pc.globalAlpha = alphaOf(); pc.drawImage(masked(), 0, 0); pc.globalAlpha = 1;
+}
+const paper = $('paper');
+paper.addEventListener('pointerdown', e => {
+  const p = pos(e); if (p.x < 0 || p.y < 0 || p.x > W || p.y > H) return;
+  save(); part = partAt(p.x, p.y);
+  sc.setTransform(1, 0, 0, 1, 0, 0); sc.clearRect(0, 0, W * DPR, H * DPR);
+  if (tool === 'fill') {
+    if (part < 0) return;
+    sc.fillStyle = colour; sc.fillRect(0, 0, W * DPR, H * DPR); masked();
+    cc.setTransform(1, 0, 0, 1, 0, 0); cc.drawImage(stroke, 0, 0);
+    return;
+  }
+  down = true; last = p;
+  try { paper.setPointerCapture(e.pointerId); } catch (_) {}
+  move(e);
+});
+function move(e) {
+  if (!down) return;
+  const p = pos(e);
+  if (tool === 'eraser') {
+    sc.setTransform(1, 0, 0, 1, 0, 0); sc.clearRect(0, 0, W * DPR, H * DPR);
+    marks(last, p); masked();
+    cc.setTransform(1, 0, 0, 1, 0, 0); cc.globalCompositeOperation = 'destination-out'; cc.drawImage(stroke, 0, 0); cc.globalCompositeOperation = 'source-over';
+  } else { marks(last, p); showPreview(); }
+  last = p;
+}
+paper.addEventListener('pointermove', move);
+const up = () => {
+  if (!down) return; down = false;
+  if (tool !== 'eraser') {
+    cc.setTransform(1, 0, 0, 1, 0, 0); cc.globalAlpha = alphaOf(); cc.drawImage(masked(), 0, 0); cc.globalAlpha = 1;
+    pc.setTransform(1, 0, 0, 1, 0, 0); pc.clearRect(0, 0, W * DPR, H * DPR);
+  }
+};
+paper.addEventListener('pointerup', up); paper.addEventListener('pointercancel', up);
+
+/* ---------- hang it: reward, then the garden, then the gallery ---------- */
+const hung = [];
+const show = id => ['paint', 'garden', 'wall'].forEach(k => $(k).classList.toggle('hidden', k !== id));
+$('reward').innerHTML = $('reward').innerHTML.replace('${BINHI}', binhiSvg(44));
+$('hang').onclick = () => {
+  const out = mk(), o = out.getContext('2d');
+  o.fillStyle = '#fff'; o.fillRect(0, 0, out.width, out.height);
+  o.drawImage($('colour'), 0, 0); o.drawImage($('outline'), 0, 0);
+  hung.unshift(out.toDataURL());
+  $('rewardPic').src = hung[0];
+  $('reward').classList.remove('hidden');
+};
+$('toGarden').onclick = () => { $('reward').classList.add('hidden'); drawGarden(); show('garden'); };
+$('backGarden').onclick = () => show('paint');
+$('backWall').onclick = () => { drawGarden(false); show('garden'); };
+function openWall() {
+  show('wall');
+  $('frames').innerHTML = hung.slice(0, 4).map((src, i) => `<div class="frame ${i ? '' : 'new'}"><img src="${src}" alt="Your Gumamela"></div>`).join('')
+    + Array.from({ length: Math.max(0, 4 - hung.length) }, () => '<div class="frame empty">Colour another plant to hang here</div>').join('');
+}
+
+function binhiSvg(w) {
+  return `<svg width="${w}" height="${w * 1.15}" viewBox="0 0 44 50" style="flex:none"><path d="M22 14 C22 6 16 2 10 4 C13 10 17 13 22 14 C23 7 29 3 35 5 C32 11 27 13 22 14" fill="#4CC35A" stroke="#2E9142" stroke-width="2"/><ellipse cx="22" cy="32" rx="16" ry="15" fill="#C98A4B" stroke="#8A5A2B" stroke-width="2.5"/><circle cx="16" cy="30" r="2.6" fill="#263046"/><circle cx="28" cy="30" r="2.6" fill="#263046"/><path d="M17 37 Q22 41 27 37" stroke="#263046" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="11" cy="35" r="2.6" fill="#FF8FB1" opacity=".6"/><circle cx="33" cy="35" r="2.6" fill="#FF8FB1" opacity=".6"/></svg>`;
+}
+
+// A simple storybook garden with the bahay kubo; the newest picture hangs by its door.
+function drawGarden(animate = true) {
+  const o = 'stroke="#5B3A1E" stroke-width="2.5" stroke-linejoin="round"';
+  const weave = Array.from({ length: 9 }, (_, i) => `<path d="M${152 + i * 13} 300 V364" stroke="#C9A266" stroke-width="1.5"/>`).join('')
+    + Array.from({ length: 6 }, (_, i) => `<path d="M150 ${306 + i * 11} H268" stroke="#C9A266" stroke-width="1.5"/>`).join('');
+  const roof = `<g clip-path="url(#roofClip)">${Array.from({ length: 17 }, (_, i) => `<path d="M${160 + i * 6.25} 232 L${136 + i * 9.25} 304" stroke="#9A6B2C" stroke-width="2" opacity=".6"/>`).join('')}</g>`;
+  const tuft = (x, y) => `<path d="M${x} ${y} l3 -9 l3 9 M${x + 5} ${y} l3 -7 l3 7" stroke="#5FAE4A" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+  const flower = (x, y, c) => `<g class="sway"><path d="M${x} ${y} V${y - 26}" stroke="#2E9142" stroke-width="3"/>${[0, 72, 144, 216, 288].map(a => `<ellipse cx="${x}" cy="${y - 34}" rx="5" ry="8" fill="${c}" transform="rotate(${a} ${x} ${y - 27})"/>`).join('')}<circle cx="${x}" cy="${y - 27}" r="3.5" fill="#FFC93C"/></g>`;
+  $('gsvg').innerHTML = `
+    <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9FDcFF"/><stop offset="1" stop-color="#E6F7FF"/></linearGradient>
+      <clipPath id="roofClip"><path d="M136 304 L160 232 H260 L284 304Z"/></clipPath><clipPath id="picClip"><rect x="-17" y="0" width="34" height="42" rx="2"/></clipPath></defs>
+    <rect width="320" height="600" fill="url(#sky)"/>
+    <circle cx="56" cy="110" r="26" fill="#FFD95A"/><circle cx="56" cy="110" r="36" fill="#FFD95A" opacity=".25"/>
+    <g fill="#fff" opacity=".95"><ellipse cx="210" cy="92" rx="34" ry="13"/><ellipse cx="230" cy="82" rx="20" ry="14"/><ellipse cx="110" cy="160" rx="24" ry="9"/></g>
+    <path d="M0 300 C60 250 130 262 190 290 C240 266 290 258 320 270 V600 H0Z" fill="#B5E08F"/>
+    <path d="M0 350 C80 326 200 330 320 346 V600 H0Z" fill="#8FD16A"/>
+    <path d="M120 600 C140 520 190 460 205 392" stroke="#E9D3A8" stroke-width="26" fill="none" stroke-linecap="round" opacity=".8"/>
+    <g id="kubo">
+      <ellipse cx="210" cy="402" rx="88" ry="10" fill="#5B8F3A" opacity=".35"/>
+      ${[158, 190, 230, 262].map(x => `<rect x="${x - 4}" y="360" width="8" height="40" fill="#8A5A2B" ${o}/>`).join('')}
+      <rect x="140" y="358" width="140" height="10" rx="2" fill="#B9893F" ${o}/>
+      <rect x="148" y="298" width="124" height="62" fill="#E9C98E" ${o}/>${weave}
+      <rect x="148" y="298" width="124" height="62" fill="none" ${o}/>
+      <rect x="226" y="314" width="28" height="46" fill="#8A5A2B" ${o}/><circle cx="249" cy="338" r="2" fill="#E9C98E"/>
+      <path d="M210 360 L226 400 M204 368 h14 M207 380 h14 M211 392 h14" stroke="#8A5A2B" stroke-width="3" opacity="0"/>
+      <path d="M136 304 L160 232 H260 L284 304Z" fill="#C79A4F" ${o}/>${roof}
+      <path d="M136 304 L160 232 H260 L284 304Z" fill="none" ${o}/>
+      <path d="M160 232 L210 212 L260 232Z" fill="#B9893F" ${o}/>
+      <g transform="translate(186 304)"><g id="pic" class="${animate ? 'drop' : ''}">
+        <g class="${animate ? 'glow' : ''}">
+          <path d="M-10 4 L0 -6 L10 4" fill="none" stroke="#5B3A1E" stroke-width="1.5"/>
+          <rect x="-22" y="2" width="44" height="52" rx="3" fill="#8A5A2B" stroke="#5B3A1E" stroke-width="2"/>
+          <g transform="translate(0 7)"><rect x="-17" y="0" width="34" height="42" fill="#fff"/>
+            <image href="${hung[0] || ''}" x="-17" y="0" width="34" height="42" preserveAspectRatio="xMidYMid meet" clip-path="url(#picClip)"/></g>
+        </g>
+      </g></g>
+    </g>
+    <g transform="translate(58 438)"><path d="M-22 0 H22 L17 34 H-17Z" fill="#E07A4E" ${o}/><rect x="-26" y="-6" width="52" height="10" rx="3" fill="#E9906A" ${o}/>${flower(0, -4, '#FF5C7A')}</g>
+    <g transform="translate(108 470)"><path d="M-16 0 H16 L12 26 H-12Z" fill="#E07A4E" ${o}/><rect x="-19" y="-5" width="38" height="8" rx="3" fill="#E9906A" ${o}/>${flower(0, -3, '#FFC93C')}</g>
+    ${tuft(20, 380)}${tuft(290, 430)}${tuft(250, 480)}${tuft(30, 520)}${tuft(180, 540)}
+    <g transform="translate(250 452)">${binhiSvg(46).replace('<svg', '<svg x="-23" y="-26"')}</g>`;
+  $('kubo').onclick = openWall;
+  const tip = $('gtip'); tip.style.animation = 'none'; void tip.offsetWidth; tip.style.animation = '';
+}
+</script>
+</body>
+</html>

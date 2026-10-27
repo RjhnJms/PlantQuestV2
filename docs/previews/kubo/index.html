@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bahay Kubo Designs</title>
+<style>
+  :root { --page:#F4EEDF; --card:#fff; --border:#E3D6BA; --text:#263046; --muted:#6E7191; --leaf:#4CC35A; --leafDark:#2E9142; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--text); font:15px/1.45 "Nunito", system-ui, sans-serif; }
+  .wrap { max-width:1100px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { margin:0 0 4px; font-size:26px; }
+  .lead { color:var(--muted); margin:0 0 18px; max-width:700px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(330px, 1fr)); gap:18px; }
+  .card { background:var(--card); border:2px solid var(--border); border-bottom-width:5px; border-radius:22px; overflow:hidden; }
+  .card svg { display:block; width:100%; height:auto; background:#BFE9FF; }
+  .info { padding:12px 16px 16px; }
+  .info h2 { margin:0 0 4px; font-size:19px; }
+  .info h2 b { display:inline-grid; place-items:center; width:28px; height:28px; border-radius:9px; background:var(--leaf); color:#fff; margin-right:6px; font-size:16px; }
+  .info p { margin:0 0 6px; color:var(--muted); font-size:14px; }
+  .info ul { margin:0; padding-left:18px; font-size:14px; }
+  .sway { animation:sway 3.2s ease-in-out infinite alternate; transform-box:fill-box; transform-origin:50% 0; }
+  @keyframes sway { from { transform:rotate(-4deg); } to { transform:rotate(4deg); } }
+  .drift { animation:drift 12s linear infinite alternate; }
+  @keyframes drift { to { transform:translateX(26px); } }
+  .glow { animation:glow 2.4s ease-in-out infinite alternate; }
+  @keyframes glow { from { opacity:.55; } to { opacity:1; } }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page:#1d2230; --card:#262c3d; --border:#3a4157; --text:#f2f2f5; --muted:#b5b8cc; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Bahay kubo: pick a design</h1>
+  <p class="lead">Each one is drawn in the garden's sticker style (dark outlines, soft light). The small framed picture on each house is where the newest coloured picture hangs. Ideas can be mixed: for example A's roof with E's hammock.</p>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+const O = 'stroke="#5B3A1E" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"';
+const T = 'stroke="#5B3A1E" stroke-width="1.6" stroke-linecap="round" fill="none"';
+const NIPA = '#D9A441', NIPA_D = '#B98328', BAMBOO = '#E8C98A', BAMBOO_D = '#C9A464', WOOD = '#8A5A2B', WOOD_L = '#A47532';
+
+const defs = `<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FD3FF"/><stop offset="1" stop-color="#E3F6FF"/></linearGradient>
+  <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A6E58A"/><stop offset="1" stop-color="#6FCB5A"/></linearGradient>
+  <pattern id="sawali" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="${BAMBOO}"/><rect x="1" y="2" width="4" height="8" rx="1" fill="${BAMBOO_D}"/><rect x="6" y="7" width="5" height="4" rx="1" fill="${BAMBOO_D}" opacity=".7"/><rect x="6" y="1" width="5" height="4" rx="1" fill="${BAMBOO_D}" opacity=".7"/></pattern>
+  <pattern id="banig" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="16" height="16" fill="#F1D9A6"/><rect width="8" height="8" fill="#E2B866"/><rect x="8" y="8" width="8" height="8" fill="#E2B866"/><rect x="0" y="6" width="16" height="2.5" fill="#E86A7A" opacity=".8"/><rect x="6" y="0" width="2.5" height="16" fill="#4FA8D8" opacity=".55"/></pattern>
+  <pattern id="slats" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="${BAMBOO}"/><rect x="0" width="1.6" height="8" fill="${BAMBOO_D}"/></pattern>
+  <pattern id="capiz" width="9" height="9" patternUnits="userSpaceOnUse"><rect width="9" height="9" fill="#FFF8EC"/><rect x=".5" y=".5" width="8" height="8" fill="#F4F0FF" stroke="#C9B48A" stroke-width="1"/><circle cx="3" cy="3" r="1.4" fill="#fff"/></pattern>
+</defs>`;
+
+function scene(kubo) {
+  return `<svg viewBox="0 0 360 250" xmlns="http://www.w3.org/2000/svg">${defs}
+    <rect width="360" height="250" fill="url(#sky)"/>
+    <circle cx="320" cy="36" r="18" fill="#FFD95A"/><circle cx="320" cy="36" r="27" fill="#FFD95A" opacity=".22"/>
+    <g class="drift" fill="#fff"><ellipse cx="60" cy="34" rx="26" ry="10"/><ellipse cx="76" cy="27" rx="16" ry="11"/></g>
+    <g ${O}><rect x="296" y="96" width="8" height="40" fill="${WOOD}"/><circle cx="300" cy="86" r="30" fill="#5FAE4A"/><circle cx="278" cy="98" r="18" fill="#5FAE4A"/><circle cx="324" cy="98" r="18" fill="#5FAE4A"/></g>
+    <path d="M0 150 Q15 132 30 150 T60 150 T90 150 T120 150 T150 150 T180 150 T210 150 T240 150 T270 150 T300 150 T330 150 T360 150 V170 H0Z" fill="#4CA544" ${O}/>
+    <rect y="160" width="360" height="90" fill="url(#grass)"/>
+    <path d="M150 250 C160 228 176 214 182 200" stroke="#EBD7A6" stroke-width="22" fill="none" stroke-linecap="round"/>
+    ${kubo}
+    ${[[30,212],[58,226],[300,214],[330,230],[268,236]].map(([x,y]) => `<path d="M${x} ${y} l3 -8 l3 8 M${x+5} ${y} l3 -6 l3 6" stroke="#3E9A3A" stroke-width="2" fill="none" stroke-linecap="round"/>`).join('')}
+    ${[[22,176,'#fff'],[44,182,'#FF8FB1'],[318,178,'#FFC93C'],[340,184,'#fff']].map(([x,y,c]) => flower(x,y,c)).join('')}
+  </svg>`;
+}
+const flower = (x, y, c) => `<g>${[0,72,144,216,288].map(a => `<ellipse cx="${x}" cy="${y-4}" rx="2.6" ry="4" fill="${c}" stroke="#C98A4B" stroke-width=".8" transform="rotate(${a} ${x} ${y})"/>`).join('')}<circle cx="${x}" cy="${y}" r="2" fill="#FFC93C"/></g>`;
+
+// The newest coloured picture in a little frame, on a nail.
+const pic = (x, y, w = 22, h = 27) => `<g>
+  <path d="M${x + w * 0.25} ${y} L${x + w / 2} ${y - 7} L${x + w * 0.75} ${y}" ${T}/><circle cx="${x + w / 2}" cy="${y - 7}" r="1.6" fill="#5B3A1E"/>
+  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1.5" fill="${WOOD}" ${O}/>
+  <rect x="${x + 3}" y="${y + 3}" width="${w - 6}" height="${h - 6}" fill="#7CCBFF"/>
+  <rect x="${x + 3}" y="${y + h * 0.66}" width="${w - 6}" height="${h * 0.34 - 3}" fill="#6FCB5A"/>
+  <path d="M${x + w / 2} ${y + h - 6} V${y + h * 0.42}" stroke="#2E9142" stroke-width="1.6"/>
+  <circle cx="${x + w / 2}" cy="${y + h * 0.38}" r="${w * 0.17}" fill="#FF5C7A"/><circle cx="${x + w / 2}" cy="${y + h * 0.38}" r="${w * 0.06}" fill="#FFC93C"/>
+</g>`;
+
+// Bamboo pole with nodes.
+const pole = (x, y1, y2, w = 8) => `<rect x="${x - w / 2}" y="${y1}" width="${w}" height="${y2 - y1}" rx="2" fill="${WOOD_L}" ${O}/>` +
+  Array.from({ length: Math.floor((y2 - y1) / 14) }, (_, i) => `<path d="M${x - w / 2} ${y1 + 12 + i * 14} h${w}" stroke="#5B3A1E" stroke-width="1.4"/>`).join('');
+const ladder = (x1, y1, x2, y2, w = 20, rungs = 4) => {
+  let s = `<path d="M${x1 - w / 2} ${y1} L${x2 - w / 2 - 4} ${y2} M${x1 + w / 2} ${y1} L${x2 + w / 2 + 4} ${y2}" stroke="#7A5226" stroke-width="5" stroke-linecap="round"/>`;
+  for (let i = 1; i <= rungs; i++) {
+    const t = i / (rungs + 1), x = x1 + (x2 - x1) * t, y = y1 + (y2 - y1) * t, half = w / 2 + 2 * t;
+    s += `<path d="M${x - half} ${y} H${x + half}" stroke="#C9A464" stroke-width="4" stroke-linecap="round"/>`;
+  }
+  return s;
+};
+// Thatch: the roof shape plus layered straw rows with ragged edges.
+function thatch(points, rows, ragged) {
+  const [l, r, tr, tl] = points; // bottom-left, bottom-right, top-right, top-left
+  let s = `<path d="M${tl[0]} ${tl[1]} L${tr[0]} ${tr[1]} L${r[0]} ${r[1]} ${ragged(r, l)} Z" fill="${NIPA}" ${O}/>`;
+  for (let i = 1; i < rows; i++) {
+    const t = i / rows;
+    const a = [tl[0] + (l[0] - tl[0]) * t, tl[1] + (l[1] - tl[1]) * t];
+    const b = [tr[0] + (r[0] - tr[0]) * t, tr[1] + (r[1] - tr[1]) * t];
+    let z = `M${a[0]} ${a[1]}`;
+    const n = Math.round((b[0] - a[0]) / 9);
+    for (let k = 1; k <= n; k++) z += ` L${a[0] + (b[0] - a[0]) * (k - 0.5) / n} ${a[1] + 4} L${a[0] + (b[0] - a[0]) * k / n} ${a[1]}`;
+    s += `<path d="${z}" stroke="${NIPA_D}" stroke-width="2" fill="none" stroke-linejoin="round"/>`;
+  }
+  // straw strokes
+  for (let k = 0; k < 26; k++) {
+    const t = (k + 0.5) / 26;
+    const x1 = tl[0] + (tr[0] - tl[0]) * t, x2 = l[0] + (r[0] - l[0]) * t;
+    s += `<path d="M${x1} ${tl[1] + 3} L${x2} ${l[1] - 4}" stroke="#E9BD5E" stroke-width="1.2" opacity=".7"/>`;
+  }
+  return s;
+}
+const zig = (from, to, depth = 6) => {
+  const n = Math.round(Math.abs(from[0] - to[0]) / 8);
+  let s = '';
+  for (let k = 1; k <= n; k++) {
+    const x = from[0] + (to[0] - from[0]) * k / n;
+    s += ` L${from[0] + (to[0] - from[0]) * (k - 0.5) / n} ${from[1] + depth} L${x} ${from[1]}`;
+  }
+  return s;
+};
+const scallop = (from, to) => {
+  const n = Math.round(Math.abs(from[0] - to[0]) / 16);
+  let s = '';
+  for (let k = 1; k <= n; k++) s += ` Q${from[0] + (to[0] - from[0]) * (k - 0.5) / n} ${from[1] + 12} ${from[0] + (to[0] - from[0]) * k / n} ${from[1]}`;
+  return s;
+};
+const shadow = (cx, cy, rx) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="9" fill="#2E6B2A" opacity=".22"/>`;
+
+const designs = [
+  {
+    name: 'Classic', line: 'The familiar bahay kubo, drawn with more care.',
+    points: ['Tall layered nipa roof with ragged straw edges', 'Woven sawali walls, a window with its awning propped open on a stick', 'Bamboo stilts with nodes, ladder up to the door'],
+    svg: () => scene(`
+      ${shadow(180, 194, 96)}
+      ${[108, 150, 214, 252].map(x => pole(x, 146, 192)).join('')}
+      <rect x="96" y="144" width="168" height="9" rx="2" fill="#B9893F" ${O}/>
+      <rect x="104" y="94" width="152" height="52" fill="url(#sawali)" ${O}/>
+      ${pic(114, 106)}
+      <rect x="146" y="104" width="26" height="42" rx="2" fill="${WOOD}" ${O}/><circle cx="167" cy="126" r="1.8" fill="${BAMBOO}"/>
+      <rect x="196" y="110" width="44" height="26" fill="#4A2E16" ${O}/><path d="M218 110 V136 M196 123 H240" stroke="${WOOD_L}" stroke-width="2.4"/>
+      <rect x="193" y="135" width="50" height="4" rx="2" fill="#C9A464" ${O}/>
+      <path d="M194 110 L242 110 L248 124 L188 124 Z" fill="${NIPA}" ${O}/><path d="M196 115 H240 M193 119 H243" stroke="${NIPA_D}" stroke-width="1.4"/>
+      <path d="M200 135 L192 124" stroke="#7A5226" stroke-width="2.5" stroke-linecap="round"/>
+      ${thatch([[82, 100], [278, 100], [230, 38], [130, 38]], 3, (r, l) => zig(r, l))}
+      <path d="M126 38 H234" stroke="${NIPA_D}" stroke-width="7" stroke-linecap="round"/><path d="M126 38 H234" ${O} fill="none" stroke-width="1.5"/>
+      ${ladder(159, 150, 159, 200)}`),
+  },
+  {
+    name: 'With a batalan porch', line: 'A shady open porch on the side, like many real kubo.',
+    points: ['Main room plus an open bamboo porch with a railing', 'A clay palayok and a hanging plant on the porch', 'Ladder goes up to the porch'],
+    svg: () => scene(`
+      ${shadow(180, 194, 108)}
+      ${[96, 140, 196, 236, 274].map(x => pole(x, 146, 192)).join('')}
+      <rect x="84" y="144" width="200" height="9" rx="2" fill="#B9893F" ${O}/>
+      <rect x="92" y="96" width="114" height="50" fill="url(#sawali)" ${O}/>
+      ${pic(102, 108)}
+      <rect x="136" y="106" width="34" height="22" fill="#4A2E16" ${O}/><path d="M153 106 V128" stroke="${WOOD_L}" stroke-width="2.4"/>
+      <rect x="180" y="104" width="22" height="42" rx="2" fill="${WOOD}" ${O}/>
+      <!-- porch -->
+      <path d="M206 102 L290 112 L290 118 L206 110 Z" fill="${NIPA_D}" ${O}/>
+      <path d="M210 104 L294 114 L288 120 L204 110 Z" fill="${NIPA}" ${O}/>
+      ${[214, 248, 282].map(x => `<rect x="${x - 3}" y="114" width="6" height="32" fill="${WOOD_L}" ${O}/>`).join('')}
+      <path d="M208 128 H284 M208 136 H284" stroke="#C9A464" stroke-width="3.5" stroke-linecap="round"/><path d="M208 128 H284" ${T}/>
+      <g transform="translate(230 140)"><path d="M-9 0 C-12 -10 -6 -14 0 -14 C6 -14 12 -10 9 0 Z" fill="#C9653B" ${O}/><rect x="-6" y="-17" width="12" height="4" rx="2" fill="#B5522B" ${O}/></g>
+      <g class="sway"><path d="M265 116 V128" ${T}/><path d="M258 128 H272 L269 138 H261 Z" fill="#E07A4E" ${O}/><path d="M261 128 C256 124 256 120 259 118 M269 128 C274 124 274 120 271 118 M265 128 V121" stroke="#3E9A3A" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>
+      ${thatch([[78, 104], [222, 104], [190, 40], [110, 40]], 3, (r, l) => zig(r, l))}
+      <path d="M106 40 H194" stroke="${NIPA_D}" stroke-width="7" stroke-linecap="round"/>
+      ${ladder(262, 150, 266, 200, 18)}`),
+  },
+  {
+    name: 'Storybook cozy', line: 'Rounder and cuter, like a picture-book house.',
+    points: ['Puffy rounded thatch roof with soft scalloped edges', 'Round window with a flower box', 'A hanging lantern that glows softly; short chunky stilts'],
+    svg: () => scene(`
+      ${shadow(180, 194, 92)}
+      ${[118, 160, 204, 244].map(x => pole(x, 158, 192, 11)).join('')}
+      <rect x="102" y="154" width="156" height="10" rx="5" fill="#B9893F" ${O}/>
+      <rect x="110" y="92" width="140" height="64" rx="12" fill="url(#slats)" ${O}/>
+      ${pic(120, 118)}
+      <path d="M152 156 V128 Q152 114 166 114 Q180 114 180 128 V156 Z" fill="${WOOD}" ${O}/><circle cx="174" cy="138" r="2" fill="${BAMBOO}"/>
+      <circle cx="218" cy="128" r="13" fill="#4A2E16" ${O}/><path d="M218 115 V141 M205 128 H231" stroke="${WOOD_L}" stroke-width="2.4"/>
+      <rect x="200" y="143" width="36" height="9" rx="3" fill="#E07A4E" ${O}/>
+      ${flower(207, 141, '#FF8FB1')}${flower(218, 140, '#fff')}${flower(229, 141, '#FFC93C')}
+      <path d="M92 96 C92 52 130 24 180 24 C230 24 268 52 268 96 ${scallop([268, 96], [92, 96])} Z" fill="${NIPA}" ${O}/>
+      <path d="M108 74 ${scallop([108, 74], [252, 74])}" stroke="${NIPA_D}" stroke-width="2.2" fill="none"/>
+      <path d="M132 50 ${scallop([132, 50], [228, 50])}" stroke="${NIPA_D}" stroke-width="2.2" fill="none"/>
+      <g class="sway"><path d="M262 98 V118" ${T}/><rect x="256" y="118" width="12" height="15" rx="4" fill="#FFE08A" ${O} class="glow"/><path d="M256 122 H268 M256 129 H268" stroke="#C98A4B" stroke-width="1.2"/></g>
+      ${ladder(166, 162, 166, 202, 18, 3)}`),
+  },
+  {
+    name: 'Capiz windows & banig walls', line: 'Colourful and very Filipino.',
+    points: ['Walls woven like a banig mat, with pink and blue stripes', 'Sliding capiz shell windows that shine', 'Roof tied down with rope bands'],
+    svg: () => scene(`
+      ${shadow(180, 194, 96)}
+      ${[108, 150, 214, 252].map(x => pole(x, 146, 192)).join('')}
+      <rect x="96" y="144" width="168" height="9" rx="2" fill="#B9893F" ${O}/>
+      <rect x="104" y="94" width="152" height="52" fill="url(#banig)" ${O}/>
+      ${pic(114, 106)}
+      <rect x="146" y="104" width="26" height="42" rx="2" fill="${WOOD}" ${O}/>
+      <rect x="186" y="102" width="60" height="30" fill="${WOOD}" ${O}/>
+      <rect x="190" y="105" width="24" height="24" fill="url(#capiz)" stroke="#5B3A1E" stroke-width="1.5"/>
+      <rect x="218" y="105" width="24" height="24" fill="url(#capiz)" stroke="#5B3A1E" stroke-width="1.5"/>
+      <path d="M193 108 L203 108" stroke="#fff" stroke-width="2" class="glow"/>
+      ${thatch([[82, 100], [278, 100], [230, 38], [130, 38]], 2, (r, l) => zig(r, l, 5))}
+      ${[150, 180, 210].map(x => `<path d="M${x - 2} 40 L${x - 2 + (x - 180) * 0.55} 100" stroke="#8A5A2B" stroke-width="3"/>`).join('')}
+      <path d="M126 38 H234" stroke="${NIPA_D}" stroke-width="7" stroke-linecap="round"/>
+      ${ladder(159, 150, 159, 200)}`),
+  },
+  {
+    name: 'Duyan under the house', line: 'The cool shade under the kubo, put to use.',
+    points: ['A woven duyan (hammock) slung between the stilts, gently swinging', 'A banga water jar and a sleepy cat in the shade', 'Classic roof and walls above'],
+    svg: () => scene(`
+      ${shadow(180, 196, 100)}
+      <rect x="96" y="132" width="168" height="62" fill="#3E7A36" opacity=".18"/>
+      ${[104, 256].map(x => pole(x, 130, 194, 9)).join('')}
+      ${[150, 210].map(x => pole(x, 130, 194, 7)).join('')}
+      <g class="sway" style="transform-origin:50% 0">
+        <path d="M152 146 C166 178 196 178 208 146" fill="none" stroke="#E86A7A" stroke-width="3"/>
+        <path d="M152 146 C166 172 196 172 208 146 C198 180 162 180 152 146 Z" fill="#F7C9D0" ${O}/>
+        <path d="M160 160 C172 170 188 170 200 160" stroke="#4FA8D8" stroke-width="2" fill="none"/>
+      </g>
+      <g transform="translate(122 186)"><path d="M-10 0 C-14 -12 -6 -18 0 -18 C6 -18 14 -12 10 0 Z" fill="#C9653B" ${O}/><rect x="-6" y="-22" width="12" height="5" rx="2" fill="#B5522B" ${O}/></g>
+      <g transform="translate(236 188)"><ellipse cx="0" cy="0" rx="13" ry="7" fill="#F2A541" ${O}/><circle cx="11" cy="-5" r="6" fill="#F2A541" ${O}/><path d="M7 -10 L9 -15 L12 -10 M12 -10 L15 -14 L16 -8" fill="#F2A541" ${O}/><path d="M9 -5 q2 1.5 4 0" ${T}/><path d="M-13 0 C-20 -2 -20 6 -14 5" ${T} stroke-width="2.2"/></g>
+      <rect x="92" y="128" width="176" height="9" rx="2" fill="#B9893F" ${O}/>
+      <rect x="100" y="80" width="160" height="50" fill="url(#sawali)" ${O}/>
+      ${pic(110, 92)}
+      <rect x="146" y="90" width="26" height="40" rx="2" fill="${WOOD}" ${O}/>
+      <rect x="196" y="92" width="44" height="24" fill="#4A2E16" ${O}/><path d="M218 92 V116 M196 104 H240" stroke="${WOOD_L}" stroke-width="2.4"/>
+      ${thatch([[80, 86], [280, 86], [232, 26], [128, 26]], 3, (r, l) => zig(r, l))}
+      <path d="M124 26 H236" stroke="${NIPA_D}" stroke-width="7" stroke-linecap="round"/>
+      ${ladder(280, 134, 296, 198, 18)}`),
+  },
+  {
+    name: 'Sunset lights', line: 'The Classic house with a warm evening glow (could follow the real time of day).',
+    points: ['Warm light in the window and door', 'Paper parol lantern under the roof', 'Fireflies near the hedge; a gentle extra for evening play'],
+    svg: () => scene(`
+      <rect width="360" height="250" fill="#FF9F6B" opacity=".28"/>
+      ${shadow(180, 194, 96)}
+      ${[108, 150, 214, 252].map(x => pole(x, 146, 192)).join('')}
+      <rect x="96" y="144" width="168" height="9" rx="2" fill="#B9893F" ${O}/>
+      <rect x="104" y="94" width="152" height="52" fill="url(#sawali)" ${O}/>
+      ${pic(114, 106)}
+      <rect x="146" y="104" width="26" height="42" rx="2" fill="#FFD27A" ${O} class="glow"/>
+      <rect x="196" y="104" width="44" height="26" fill="#FFD27A" ${O} class="glow"/><path d="M218 104 V130 M196 117 H240" stroke="${WOOD_L}" stroke-width="2.4"/>
+      ${thatch([[82, 100], [278, 100], [230, 38], [130, 38]], 3, (r, l) => zig(r, l))}
+      <path d="M126 38 H234" stroke="${NIPA_D}" stroke-width="7" stroke-linecap="round"/>
+      <g class="sway"><path d="M262 100 V108" ${T}/><path d="M262 108 L272 118 L262 128 L252 118 Z" fill="#FF6B6B" ${O} class="glow"/><path d="M262 108 V128 M252 118 H272" stroke="#FFD27A" stroke-width="1.5"/><path d="M258 128 L256 138 M266 128 L268 138" stroke="#FFC93C" stroke-width="2"/></g>
+      ${[[40, 150], [70, 140], [300, 148], [330, 140], [90, 158]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="2.6" fill="#FFF59A" class="glow" style="animation-delay:${i * 0.4}s"/>`).join('')}
+      ${ladder(159, 150, 159, 200)}`),
+  },
+];
+
+document.getElementById('grid').innerHTML = designs.map((d, i) => `
+  <div class="card">${d.svg()}
+    <div class="info"><h2><b>${'ABCDEF'[i]}</b>${d.name}</h2><p>${d.line}</p>
+      <ul>${d.points.map(p => `<li>${p}</li>`).join('')}</ul></div>
+  </div>`).join('');
+</script>
+</body>
+</html>

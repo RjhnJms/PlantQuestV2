@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Garden Sounds</title>
+<style>
+  :root { --bg:#FFF9EC; --card:#fff; --text:#263046; --muted:#6E7191; --leaf:#4CC35A; --leafDark:#2E9142; --sky:#3BA4E6; --border:#E3D6BA; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#1d2230; --card:#262c3d; --text:#f2f2f5; --muted:#b5b8cc; --border:#3a4157; } }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.45 system-ui, sans-serif; }
+  main { max-width:560px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { font-size:28px; margin:0 0 4px; }
+  h3 { margin:24px 0 8px; font-size:15px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+  p.lead { color:var(--muted); margin:0 0 16px; }
+  .card { background:var(--card); border:2px solid var(--border); border-radius:20px; padding:16px; margin-bottom:14px; }
+  .card h2 { margin:0; font-size:19px; }
+  .card p { margin:4px 0 12px; color:var(--muted); }
+  audio { width:100%; }
+  .tag { display:inline-block; font-size:12px; font-weight:700; padding:2px 8px; border-radius:99px; background:#E6F8DD; color:var(--leafDark); margin-left:6px; vertical-align:middle; }
+  .tag.rain { background:#E5F5FF; color:var(--sky); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Garden sound samples</h1>
+  <p class="lead">Made for PlantQuest by a script, so there is nothing to license. In the app they would play softly under the music, only while My Garden is open, and follow the Sounds switch.</p>
+
+  <h3>Together with the music (how it would really sound)</h3>
+  <div class="card">
+    <h2>Rainy garden <span class="tag rain">tap a cloud</span></h2>
+    <p>"Bahay kubo morning" a little quieter, with soft rain underneath.</p>
+    <audio controls preload="auto" src="mix-rainy.wav"></audio>
+  </div>
+  <div class="card">
+    <h2>Sunny garden <span class="tag">tap the sun</span></h2>
+    <p>The same music with birds now and then and a light breeze.</p>
+    <audio controls preload="auto" src="mix-sunny.wav"></audio>
+  </div>
+
+  <h3>Each sound on its own</h3>
+  <div class="card">
+    <h2>Rain <span class="tag rain">Rainy</span></h2>
+    <p>A hushed patter on leaves with little drops. Repeats without a gap.</p>
+    <audio controls loop preload="auto" src="rain.wav"></audio>
+  </div>
+  <div class="card">
+    <h2>Birds <span class="tag">Sunny</span></h2>
+    <p>Three kinds of small bird calls (a tweet-tweet, a falling whistle, a trill), a few seconds apart.</p>
+    <audio controls loop preload="auto" src="birds.wav"></audio>
+  </div>
+  <div class="card">
+    <h2>Breeze <span class="tag">Sunny, Cloudy</span></h2>
+    <p>Soft wind in the trees that swells and settles.</p>
+    <audio controls loop preload="auto" src="breeze.wav"></audio>
+  </div>
+  <div class="card">
+    <h2>Rainbow chime <span class="tag">Rainbow</span></h2>
+    <p>Four rising bells, played once when the rainbow appears.</p>
+    <audio controls preload="auto" src="rainbow.wav"></audio>
+  </div>
+</main>
+</body>
+</html>

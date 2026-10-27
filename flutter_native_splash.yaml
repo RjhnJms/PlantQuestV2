@@ -1,0 +1,9 @@
+# Splash screen (PLAN.md §11): cream background with Binhi, matching the
+# Loading screen that follows. Regenerate: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#FFF9EC"
+  image: assets/brand/splash.png
+  android_12:
+    image: assets/brand/splash_android12.png
+    color: "#FFF9EC"
+  web: true

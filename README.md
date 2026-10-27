@@ -11,6 +11,10 @@ they earn leaves.
 
 The full design, every decision and the content rules are in **[PLAN.md](PLAN.md)**.
 
+## Download
+
+Get the Android app from the [latest release](https://github.com/RjhnJms/PlantQuestV2/releases/latest): pick **PlantQuest-2.0.0-arm64.apk** for most phones, or **PlantQuest-2.0.0-older-phones.apk** if that one won't install. Open the file on the phone and allow installing apps from this source.
+
 ## What's inside
 
 | Folder | What |
